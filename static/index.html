@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <link href="style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="dialog-polyfill.css" />
+    <title>Clonifier</title>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <div id="loading" style="display: none">
+      <div class="loading_container">
+        <div id="loading_message">
+          <h2>Loading application...</h2>
+          <div id="loading_fail" style="display:none">
+            <p>
+              Failed. This is probably because your browser is too old. Try the
+              latest version of <a href="https://www.mozilla.org/">Firefox</a>.
+            </p>
+            <p id="loading_fail_details"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="bsod" style="display:none">
+      <div id="bsod_message"></div>
+    </div>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="0"
+      height="0"
+      style="position: absolute"
+    >
+      <!-- adapted from https://stackoverflow.com/a/22643745 -->
+      <pattern
+        height="2"
+        id="diagonalHatch"
+        patternTransform="rotate(45 0 0)"
+        patternUnits="userSpaceOnUse"
+        width="2"
+      >
+        <line
+          opacity="0.5"
+          style="stroke:black; stroke-width:1"
+          x1="0"
+          x2="0"
+          y1="0"
+          y2="2"
+        ></line>
+      </pattern>
+    </svg>
+    <dialog id="prompt_template">
+      <form method="dialog">
+        <p>Please enter a value</p>
+        <input type="text" value="" autofocus />
+        <button type="submit" value="ok">OK</button>
+        <button type="submit" value="cancel">Cancel</button>
+      </form>
+    </dialog>
+    <dialog id="extract_range_template">
+      <form method="dialog">
+        <p>Extract range:</p>
+        <table>
+          <tr>
+            <td>From:</td>
+            <td><input type="number" name="from" value="" autofocus /></td>
+          </tr>
+          <tr>
+            <td>To:</td>
+            <td><input type="number" name="to" value="" autofocus /></td>
+          </tr>
+        </table>
+
+        <p>
+          <button type="submit" value="ok">OK</button>
+          <button value="cancel">Cancel</button>
+        </p>
+      </form>
+    </dialog>
+    <script>
+      // This needs to be in its own block without any modern JS so
+      // old browsers can parse it.
+      function showLoading() {
+        var loading = document.getElementById("loading");
+        if (loading) loading.style.display = "";
+      }
+      function scriptFail(error) {
+        var failed = document.getElementById("loading_fail");
+        if (failed) {
+          showLoading();
+          failed.style.display = "";
+          document.getElementById("loading_fail_details").innerText = error;
+        }
+      }
+      // display loading screen if loading is slow
+      // if 'loading' still exists, the React code isn't running.
+      window.setTimeout(showLoading, 250);
+    </script>
+    <script src="main.bundle.js" onerror="scriptFail(event);"></script>
+    <script>
+      // for browsers that don't support 'onerror'
+      if (typeof _appLoadSuccess === "undefined") {
+        scriptFail("See console for details");
+      }
+    </script>
+  </body>
+</html>

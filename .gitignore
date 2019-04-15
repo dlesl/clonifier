@@ -1,0 +1,8 @@
+dist
+node_modules
+rust/bin
+rust/pkg
+rust/target
+rust/wasm-pack.log
+rust/out
+**/.vscode

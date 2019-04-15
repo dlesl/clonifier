@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "esnext", // needed to have dynamic imports
+    "lib": ["es2018"],
+    "sourceMap": true,
+    // "noImplicitAny": false,
+    "target": "es6",
+    "allowJs": true,
+    "moduleResolution": "node"
+    // "strict": true
+  },
+  "include": ["./**/*"]
+}

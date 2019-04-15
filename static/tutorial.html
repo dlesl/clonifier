@@ -1,0 +1,161 @@
+<h1>Tutorial</h1>
+<p>This tutorial will guide you through a cloning project.</p>
+<p>
+  We will clone <i>spoT</i> from <i>Escherichia coli</i> into the expression
+  vector pTrc99a.
+</p>
+<p>To do this we will use the following primers:</p>
+<style>
+  td {
+    font-family: monospace;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Sequence</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>pTrc99a_fwd</td>
+      <td>gcatgcaagcttggctgttttg</td>
+    </tr>
+    <tr>
+      <td>pTrc99a_rev</td>
+      <td>gtgtgaaattgttatccgctcacaattcc</td>
+    </tr>
+    <tr>
+      <td>spot_fwd</td>
+      <td>CGGATAACAATTTCACACaggtcgtcgttaatcacaaagcgg</td>
+      <td>overlaps with pTrc99a_rev</td>
+    </tr>
+    <tr>
+      <td>spot_rev</td>
+      <td>AAACAGCCAAGCTTGCATGCtaatttcggtttcgggtgactttaatcac</td>
+      <td>overlaps with pTrc99a_fwd</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  To add these primers, either use the "🗒️ Bulk edit" function or click
+  <a
+    href="addprimers:pTrc99a_fwd|gcatgcaagcttggctgttttg|$pTrc99a_rev|gtgtgaaattgttatccgctcacaattcc|$spot_fwd|CGGATAACAATTTCACACaggtcgtcgttaatcacaaagcgg|overlaps with pTrc99a_rev$spot_rev|AAACAGCCAAGCTTGCATGCtaatttcggtttcgggtgactttaatcac|overlaps with pTrc99a_fwd"
+  >
+    here</a
+  >
+  to add them automatically.
+</p>
+<p>
+  Now we can amplify our backbone. Load pTrc99a's sequence by using the
+  "Standard Templates" menu, or click <a href="bin+prefetch:pTrc99a.bin">here</a>.
+</p>
+<p>
+  Select the two primers, <code>pTrc99a_fwd</code> and <code>pTrc99a_rev</code>,
+  and with the pTrc99a sequence open, click "PCR".
+</p>
+<p>
+  On the left side of the screen, you can see that each primer binds once. On
+  the right side, you see that one PCR product was found.
+</p>
+<p>Click on this product to open it.</p>
+<p>
+  If you would like, you can rename it by clicking the ✏️ next to "Name". Then
+  click "Save as Fragment" to save it to the fragments list.
+</p>
+<p>
+  Now open the <a href="bin+prefetch:mg1655.bin"><i>E. coli</i> genome</a> and amplify
+  <i>spoT</i> with the other two primers, then save the resulting fragment.
+</p>
+<p>
+  You should now have two fragments in your list, and the <i>spoT</i> product
+  has sequences complementary to the pTrc99a backbone at its ends. Select both
+  products and click "Assemble".
+</p>
+<p>
+  The DNA assembly view opens. You will see that one circular product has been
+  found. By hovering the mouse over the product, you can see how the two
+  fragments are joined.
+</p>
+<svg viewBox="-40 -40 680 380" xmlns="http://www.w3.org/2000/svg">
+  <path
+    class="assembly_diagram_fragment_fwd"
+    d="M215.80904,274.1446 A150,150,0,1,1,449.9755,152.71202 L439.9771,152.53122 A140,140,0,1,0,221.42177,265.8683 z"
+  ></path>
+  <path
+    d="M215.80904,274.1446 L221.42177,265.8683 z"
+    fill="url(#diagonalHatch)"
+  ></path>
+  <path
+    d="M449.9755,152.71202 L439.9771,152.53122 z"
+    fill="url(#diagonalHatch)"
+  ></path>
+  <path
+    class="assembly_diagram_fragment_fwd"
+    d="M215.80904,274.1446 A150,150,0,1,1,449.9755,152.71202 L439.9771,152.53122 A140,140,0,1,0,221.42177,265.8683 z"
+  ></path>
+  <path
+    d="M221.42177,265.8683 A140,140,0,1,1,439.9771,152.53122"
+    fill="none"
+    id="d_fragment_3_0"
+  ></path>
+  <text style="font: 10px sans-serif;">
+    <textPath href="#d_fragment_3_0" startOffset="50%" text-anchor="middle">
+      pTrc99a_backbone
+    </textPath>
+  </text>
+  <line
+    class="assembly_diagram_connector"
+    x1="221.4217700385574"
+    x2="224.8878345175471"
+    y1="265.8682949565007"
+    y2="256.1044890498824"
+  ></line>
+  <line
+    class="assembly_diagram_connector"
+    x1="219.10997563428148"
+    x2="227.03450075008902"
+    y1="264.26637282295025"
+    y2="257.5919881738935"
+  ></line>
+  <path
+    class="assembly_diagram_fragment_fwd"
+    d="M430,150 A130,130,0,0,1,224.88783,256.1045 L230.6657,247.94261 A120,120,0,0,0,420,150 z"
+  ></path>
+  <path d="M430,150 L420,150 z" fill="url(#diagonalHatch)"></path>
+  <path
+    d="M224.88783,256.1045 L230.6657,247.94261 z"
+    fill="url(#diagonalHatch)"
+  ></path>
+  <path
+    class="assembly_diagram_fragment_fwd"
+    d="M430,150 A130,130,0,0,1,224.88783,256.1045 L230.6657,247.94261 A120,120,0,0,0,420,150 z"
+  ></path>
+  <path
+    d="M420,150 A120,120,0,0,1,230.6657,247.94261"
+    fill="none"
+    id="d_fragment_3_1"
+  ></path>
+  <text style="font: 10px sans-serif;">
+    <textPath href="#d_fragment_3_1" startOffset="50%" text-anchor="middle">
+      spoT_insert
+    </textPath>
+  </text>
+  <line
+    class="assembly_diagram_connector"
+    x1="440"
+    x2="429.97875035673417"
+    y1="149.99999999999997"
+    y2="152.35041606992672"
+  ></line>
+  <line
+    class="assembly_diagram_connector"
+    x1="439.97711576879067"
+    x2="430"
+    y1="152.53121730607495"
+    y2="149.99999999999997"
+  ></line>
+</svg>
+<p>You can click on the product to open it.</p>

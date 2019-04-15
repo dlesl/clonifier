@@ -1,0 +1,58 @@
+<h1>Guide</h1>
+<h2>Basics</h2>
+<p>
+    On your left you will find two lists which you are able to edit:
+    <ul>
+        <li>Primers</li>
+        <li>Sequences</li>
+    </ul>
+</p>
+<h3>Primers</h3>
+<p>
+    To add a primer to the list, click the add (➕) button at the bottom of the pane.
+</p>
+<p>
+    When editing the list, you can use <code>&lt;tab&gt;</code> to advance to the next field, and <code>&lt;enter&gt;</code>
+    to move down.
+</p>
+<p>
+    If you prefer, you can use the "🗒️ Bulk edit" function to copy/paste values from a spreadsheet. The data should be
+    in the following format:
+</p>
+<pre>Name   Sequence    Description</pre>
+<p>
+    Description is optional, and the columns can be separated by any number of spaces or tabs. This means no spaces are
+    allowed in the primer name!
+</p>
+<p>
+    After pasting in your primer list, click "💾 Save".
+</p>
+<h3>Sequences</h3>
+<p>
+    The sequences list works in a similar way, except you must first open a file to be able to save it to the list.
+    Files in Genbank (<code>.gb</code>, <code>.ape</code>) format are supported. You can open files from your harddrive using File -> Open, or by
+    dragging them into the window. If you drag files into the sequence list, they will be saved directly.
+</p>
+<p>
+    Some DNA sequences are available from the drop-down menu under "Standard Templates". The bacterial genomes are
+    quite
+    large, and may take a few seconds to load. During this time, the status bar in the bottom right of the screen will
+    indicate that something is happening in the background.
+</p>
+<h2>PCR</h2>
+<p>
+    To simulate PCR, open a sequence, select the primers you want to test, and click "PCR" at the bottom of the primer
+    list.
+</p>
+<p>
+    You can adjust the parameters and click "Run" to repeat the PCR with the same primers and template.
+</p>
+<p>
+    You can click on a product to open it as a sequence, or save it directly to the sequences list.
+</p>
+<h2>Gibson Assembly</h2>
+<p>
+    To simulate Gibson assembly, select the sequences you wish to assemble, at click "Assemble" at the bottom of the
+    sequence list. Clonifier shows you possible circular and linear products. By holding the mouse over an entry, you
+    can see a diagram of how the DNA fragments have been assembled. Clicking on an entry opens its sequence.
+</p>

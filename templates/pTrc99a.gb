@@ -1,0 +1,189 @@
+LOCUS       XXU13872                4176 bp    DNA     circular SYN 07-DEC-1994
+DEFINITION  pTrc99a cloning vector, complete sequence.
+ACCESSION   U13872
+VERSION     U13872.1
+KEYWORDS    5S; beta-lactamase; lac repressor protein.
+SOURCE      unidentified cloning vector
+  ORGANISM  unidentified cloning vector
+            other sequences; artificial sequences; vectors.
+REFERENCE   1  (bases 1 to 4176)
+  AUTHORS   Malone,J.A.
+  TITLE     pTrc99a: A cloning vector for inducible expression of cloned
+            inserts using the trc promoter
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 4176)
+  AUTHORS   Amann,E., Ochs,B. and Abel,K.J.
+  TITLE     Tightly regulated tac promoter vectors useful for the expression of
+            unfused and fused proteins in Escherichia coli
+  JOURNAL   Gene 69 (2), 301-315 (1988)
+   PUBMED   3069586
+REFERENCE   3  (bases 193 to 222)
+  AUTHORS   Brosius,J., Erfle,M. and Storella,J.
+  TITLE     Spacing of the -10 and -35 regions in the tac promoter. Effect on
+            its in vivo activity
+  JOURNAL   J. Biol. Chem. 260 (6), 3539-3541 (1985)
+   PUBMED   2579077
+REFERENCE   4  (bases 328 to 753)
+  AUTHORS   Brosius,J., Dull,T.J., Sleeter,D.D. and Noller,H.F.
+  TITLE     Gene organization and primary structure of a ribosomal RNA operon
+            from Escherichia coli
+  JOURNAL   J. Mol. Biol. 148 (2), 107-127 (1981)
+   PUBMED   7028991
+REFERENCE   5  (bases 1 to 4176)
+  AUTHORS   Malone,J.A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (19-AUG-1994) James A. Malone, International Technical
+            Services, Molecular Biology Reagents Division, Pharmacia Biotech
+            Inc., 2202 N. Bartlett Ave., Milwaukee, WI 53202-1009, USA
+FEATURES             Location/Qualifiers
+     source          1..4176
+                     /organism="unidentified cloning vector"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:45196"
+                     /lab_host="Escherichia coli"
+     regulatory      193..222
+                     /regulatory_class="promoter"
+                     /note="The trc promoter combines the -35 region from the
+                     trp promoter and the -10 region from the lacUV5 promoter"
+                     /citation=[3]
+     gene            193..198
+                     /gene="trp"
+     regulatory      193..198
+                     /regulatory_class="minus_35_signal"
+                     /gene="trp"
+     gene            216..222
+                     /gene="lacUV5"
+     regulatory      216..222
+                     /regulatory_class="minus_10_signal"
+                     /gene="lacUV5"
+     protein_bind    228..248
+                     /bound_moiety="lacIq repressor protein"
+     misc_feature    265..314
+                     /note="Multiple Cloning Site (MCS); contains unique sites
+                     for NcoI, EcoRI, SacI, KpnI, SmaI, BamHI, XbaI, SalI,
+                     PstI, and HindIII"
+     misc_feature    328..753
+                     /note="derived from the rrnB operon; the entire operon is
+                     not contained in this vector"
+     gene            409..734
+                     /gene="rrnB"
+     rRNA            409..528
+                     /gene="rrnB"
+                     /product="5S ribosomal RNA"
+     regulatory      532..575
+                     /regulatory_class="terminator"
+                     /gene="rrnB"
+                     /standard_name="rrnB T1"
+     regulatory      707..734
+                     /regulatory_class="terminator"
+                     /gene="rrnB"
+                     /standard_name="rrnB T2"
+     gene            776..1706
+                     /gene="bla"
+     regulatory      776..804
+                     /regulatory_class="promoter"
+                     /gene="bla"
+     CDS             846..1706
+                     /gene="bla"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="beta-lactamase"
+                     /protein_id="AAA56743.1"
+                     /translation="MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGY
+                     IELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVE
+                     YSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRL
+                     DRWEPELNEAIPNDERDTTMPTAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPL
+                     LRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIA
+                     EIGASLIKHW"
+     rep_origin      2464
+                     /note="base 2464 represents the first base of the newly
+                     synthesized single strand"
+                     /direction=right
+     gene            3055..4137
+                     /gene="lacIq"
+     CDS             3055..4137
+                     /gene="lacIq"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="lac repressor protein"
+                     /protein_id="AAA56744.1"
+                     /translation="MKPVTLYDVAEYAGVSYQTVSRVVNQASHVSAKTREKVEAAMAE
+                     LNYIPNRVAQQLAGKQSLLIGVATSSLALHAPSQIVAAIKSRADQLGASVVVSMVERS
+                     GVEACKAAVHNLLAQRVSGLIINYPLDDQDAIAVEAACTNVPALFLDVSDQTPINSII
+                     FSHEDGTRLGVEHLVALGHQQIALLAGPLSSVSARLRLAGWHKYLTRNQIQPIAEREG
+                     DWSAMSGFQQTMQMLNEGIVPTAMLVANDQMALGAMRAITESGLRVGADISVVGYDDT
+                     EDSSCYIPPLTTIKQDFRLLGQTSVDRLLQLSQGQAVKGNQLLPVSLVKRKTTLAPNT
+                     QTASPRALADSLMQLARQVSRLESGQ"
+ORIGIN      
+        1 gtttgacagc ttatcatcga ctgcacggtg caccaatgct tctggcgtca ggcagccatc
+       61 ggaagctgtg gtatggctgt gcaggtcgta aatcactgca taattcgtgt cgctcaaggc
+      121 gcactcccgt tctggataat gttttttgcg ccgacatcat aacggttctg gcaaatattc
+      181 tgaaatgagc tgttgacaat taatcatccg gctcgtataa tgtgtggaat tgtgagcgga
+      241 taacaatttc acacaggaaa cagaccatgg aattcgagct cggtacccgg ggatcctcta
+      301 gagtcgacct gcaggcatgc aagcttggct gttttggcgg atgagagaag attttcagcc
+      361 tgatacagat taaatcagaa cgcagaagcg gtctgataaa acagaatttg cctggcggca
+      421 gtagcgcggt ggtcccacct gaccccatgc cgaactcaga agtgaaacgc cgtagcgccg
+      481 atggtagtgt ggggtctccc catgcgagag tagggaactg ccaggcatca aataaaacga
+      541 aaggctcagt cgaaagactg ggcctttcgt tttatctgtt gtttgtcggt gaacgctctc
+      601 ctgagtagga caaatccgcc gggagcggat ttgaacgttg cgaagcaacg gcccggaggg
+      661 tggcgggcag gacgcccgcc ataaactgcc aggcatcaaa ttaagcagaa ggccatcctg
+      721 acggatggcc tttttgcgtt tctacaaact ctttttgttt atttttctaa atacattcaa
+      781 atatgtatcc gctcatgaga caataaccct gataaatgct tcaataatat tgaaaaagga
+      841 agagtatgag tattcaacat ttccgtgtcg cccttattcc cttttttgcg gcattttgcc
+      901 ttcctgtttt tgctcaccca gaaacgctgg tgaaagtaaa agatgctgaa gatcagttgg
+      961 gtgcacgagt gggttacatc gaactggatc tcaacagcgg taagatcctt gagagttttc
+     1021 gccccgaaga acgttttcca atgatgagca cttttaaagt tctgctatgt ggcgcggtat
+     1081 tatcccgtgt tgacgccggg caagagcaac tcggtcgccg catacactat tctcagaatg
+     1141 acttggttga gtactcacca gtcacagaaa agcatcttac ggatggcatg acagtaagag
+     1201 aattatgcag tgctgccata accatgagtg ataacactgc ggccaactta cttctgacaa
+     1261 cgatcggagg accgaaggag ctaaccgctt ttttgcacaa catgggggat catgtaactc
+     1321 gccttgatcg ttgggaaccg gagctgaatg aagccatacc aaacgacgag cgtgacacca
+     1381 cgatgcctac agcaatggca acaacgttgc gcaaactatt aactggcgaa ctacttactc
+     1441 tagcttcccg gcaacaatta atagactgga tggaggcgga taaagttgca ggaccacttc
+     1501 tgcgctcggc ccttccggct ggctggttta ttgctgataa atctggagcc ggtgagcgtg
+     1561 ggtctcgcgg tatcattgca gcactggggc cagatggtaa gccctcccgt atcgtagtta
+     1621 tctacacgac ggggagtcag gcaactatgg atgaacgaaa tagacagatc gctgagatag
+     1681 gtgcctcact gattaagcat tggtaactgt cagaccaagt ttactcatat atactttaga
+     1741 ttgatttaaa acttcatttt taatttaaaa ggatctaggt gaagatcctt tttgataatc
+     1801 tcatgaccaa aatcccttaa cgtgagtttt cgttccactg agcgtcagac cccgtagaaa
+     1861 agatcaaagg atcttcttga gatccttttt ttctgcgcgt aatctgctgc ttgcaaacaa
+     1921 aaaaaccacc gctaccagcg gtggtttgtt tgccggatca agagctacca actctttttc
+     1981 cgaaggtaac tggcttcagc agagcgcaga taccaaatac tgtccttcta gtgtagccgt
+     2041 agttaggcca ccacttcaag aactctgtag caccgcctac atacctcgct ctgctaatcc
+     2101 tgttaccagt ggctgctgcc agtggcgata agtcgtgtct taccgggttg gactcaagac
+     2161 gatagttacc ggataaggcg cagcggtcgg gctgaacggg gggttcgtgc acacagccca
+     2221 gcttggagcg aacgacctac accgaactga gatacctaca gcgtgagcta tgagaaagcg
+     2281 ccacgcttcc cgaagggaga aaggcggaca ggtatccggt aagcggcagg gtcggaacag
+     2341 gagagcgcac gagggagctt ccagggggaa acgcctggta tctttatagt cctgtcgggt
+     2401 ttcgccacct ctgacttgag cgtcgatttt tgtgatgctc gtcagggggg cggagcctat
+     2461 ggaaaaacgc cagcaacgcg gcctttttac ggttcctggc cttttgctgg ccttttgctc
+     2521 acatgttctt tcctgcgtta tcccctgatt ctgtggataa ccgtattacc gcctttgagt
+     2581 gagctgatac cgctcgccgc agccgaacga ccgagcgcag cgagtcagtg agcgaggaag
+     2641 cggaagagcg cctgatgcgg tattttctcc ttacgcatct gtgcggtatt tcacaccgca
+     2701 tatggtgcac tctcagtaca atctgctctg atgccgcata gttaagccag tatacactcc
+     2761 gctatcgcta cgtgactggg tcatggctgc gccccgacac ccgccaacac ccgctgacgc
+     2821 gccctgacgg gcttgtctgc tcccggcatc cgcttacaga caagctgtga ccgtctccgg
+     2881 gagctgcatg tgtcagaggt tttcaccgtc atcaccgaaa cgcgcgaggc agcagatcaa
+     2941 ttcgcgcgcg aaggcgaagc ggcatgcatt tacgttgaca ccatcgaatg gtgcaaaacc
+     3001 tttcgcggta tggcatgata gcgcccggaa gagagtcaat tcagggtggt gaatgtgaaa
+     3061 ccagtaacgt tatacgatgt cgcagagtat gccggtgtct cttatcagac cgtttcccgc
+     3121 gtggtgaacc aggccagcca cgtttctgcg aaaacgcggg aaaaagtgga agcggcgatg
+     3181 gcggagctga attacattcc caaccgcgtg gcacaacaac tggcgggcaa acagtcgttg
+     3241 ctgattggcg ttgccacctc cagtctggcc ctgcacgcgc cgtcgcaaat tgtcgcggcg
+     3301 attaaatctc gcgccgatca actgggtgcc agcgtggtgg tgtcgatggt agaacgaagc
+     3361 ggcgtcgaag cctgtaaagc ggcggtgcac aatcttctcg cgcaacgcgt cagtgggctg
+     3421 atcattaact atccgctgga tgaccaggat gccattgctg tggaagctgc ctgcactaat
+     3481 gttccggcgt tatttcttga tgtctctgac cagacaccca tcaacagtat tattttctcc
+     3541 catgaagacg gtacgcgact gggcgtggag catctggtcg cattgggtca ccagcaaatc
+     3601 gcgctgttag cgggcccatt aagttctgtc tcggcgcgtc tgcgtctggc tggctggcat
+     3661 aaatatctca ctcgcaatca aattcagccg atagcggaac gggaaggcga ctggagtgcc
+     3721 atgtccggtt ttcaacaaac catgcaaatg ctgaatgagg gcatcgttcc cactgcgatg
+     3781 ctggttgcca acgatcagat ggcgctgggc gcaatgcgcg ccattaccga gtccgggctg
+     3841 cgcgttggtg cggatatctc ggtagtggga tacgacgata ccgaagacag ctcatgttat
+     3901 atcccgccgt taaccaccat caaacaggat tttcgcctgc tggggcaaac cagcgtggac
+     3961 cgcttgctgc aactctctca gggccaggcg gtgaagggca atcagctgtt gcccgtctca
+     4021 ctggtgaaaa gaaaaaccac cctggcgccc aatacgcaaa ccgcctctcc ccgcgcgttg
+     4081 gccgattcat taatgcagct ggcacgacag gtttcccgac tggaaagcgg gcagtgagcg
+     4141 caacgcaatt aatgtgagtt agcgcgaatt gatctg
+//
+
