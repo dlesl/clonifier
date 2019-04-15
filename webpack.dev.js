@@ -1,5 +1,5 @@
 const merge = require("webpack-merge");
-const [common_app, common_worker, buildTemplates] = require("./webpack.common.js");
+const [common_app, common_worker] = require("./webpack.common.js");
 
 const app = {
   mode: "development",
@@ -14,4 +14,4 @@ const worker = {
   devtool: "source-map"
 };
 
-module.exports = [merge(common_app, app), merge(common_worker, worker),/* buildTemplates*/];
+module.exports = [merge(common_app, app), merge(common_worker, worker)];

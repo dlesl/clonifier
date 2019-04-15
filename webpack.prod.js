@@ -1,6 +1,6 @@
 const TerserPlugin = require("terser-webpack-plugin");
 const merge = require("webpack-merge");
-const [common_app, common_worker, buildTemplates] = require("./webpack.common.js");
+const [common_app, common_worker] = require("./webpack.common.js");
 
 const app = {
   mode: "production",
@@ -34,4 +34,4 @@ const worker = {
   }
 };
 
-module.exports = [merge(common_app, app), merge(common_worker, worker), buildTemplates];
+module.exports = [merge(common_app, app), merge(common_worker, worker)];

@@ -4,7 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server -d --config webpack.dev.js",
     "prebuild": "mkdir dist; rm -rf dist/*; mkdir dist/tmp",
-    "build": "webpack --config webpack.prod.js",
+    "build": "webpack --config webpack.prod.js && webpack --config webpack.templates.js",
     "postbuild": "node dist/tmp/build_templates.js; rm -rf dist/tmp"
   },
   "devDependencies": {
