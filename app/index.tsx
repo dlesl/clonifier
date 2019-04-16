@@ -116,10 +116,12 @@ class App extends React.PureComponent<{}, State> {
   public saveFiles = (files: FileList) => {
     this.setState({ selectedPanel: Panel.Fragments });
     for (const f of files) {
+      const name = f.name;
       utils
         .readAsArrayBuffer(f)
         .then(parse_gb)
-        .then(seqs => seqs.forEach(seq => this.saveFragment(seq)));
+        .then(seqs => seqs.forEach(seq => this.saveFragment(seq)))
+        .catch(e => alert(`Importing '${name}' failed: ${e.toString()}`));
     }
   };
   public loadFiles = (files: FileList) => {
