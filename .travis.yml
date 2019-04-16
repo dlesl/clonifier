@@ -10,6 +10,12 @@ script:
   - npm install
   - npm run build
 
+cache:
+  directories:
+  - rust/target
+  - $HOME/.cargo
+  - node_modules
+
 deploy:
   provider: pages
   skip_cleanup: true
