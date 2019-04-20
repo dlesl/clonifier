@@ -2,17 +2,20 @@ import * as React from "react";
 import { appContext } from ".";
 import { readCachedPromise } from "./utils/suspense";
 import { Tab } from "./tab";
-import { fetchText, fetchBinary } from "./utils";
+import { fetchText, fetchBinary, splitUrl } from "./utils";
 import { parse_bin } from "./worker_comms/worker_shims";
 import SeqTab from "./seq_view";
 import { settings } from "./config";
+import { url } from "inspector";
 
 export default class InfoTab extends Tab {
   private name: string;
+  private url: string
   private htmlPromise: Promise<string>;
   constructor(name: string, url: string) {
     super();
     this.name = name;
+    this.url = url;
     this.htmlPromise = fetchText(url);
   }
   get symbol() {
@@ -22,34 +25,28 @@ export default class InfoTab extends Tab {
     return <>{this.name}</>;
   }
   public renderSelf() {
-    return <InfoView name={this.name} htmlPromise={this.htmlPromise} />;
+    return <InfoView htmlPromise={this.htmlPromise} />;
+  }
+  get hash(): string | null {
+    return "info:" + this.url;
   }
 }
 
 function InfoView({
-  name,
   htmlPromise
 }: {
-  name: string;
   htmlPromise: Promise<string>;
 }) {
   const html = readCachedPromise(htmlPromise);
   const divRef = React.useRef<HTMLDivElement>(null);
   const onLinkClicked = (href: string, title: string): (() => void) => {
-    const colon = href.indexOf(":");
-    const scheme = href.slice(0, colon);
-    const rest = href.slice(colon + 1);
+    const { scheme, rest } = splitUrl(href);
     switch (scheme) {
       case "info":
         return () => appContext.addTab(new InfoTab(title, rest));
       case "http":
       case "https":
         return () => window.open(href, "_blank");
-      case "bin":
-        return () => {
-          const seq = fetchBinary(rest).then(parse_bin);
-          appContext.addTab(new SeqTab(seq, title));
-        };
       case "bin+prefetch":
         const data = fetchBinary(rest);
         return () => {
@@ -61,7 +58,7 @@ function InfoView({
               return fetchBinary(rest).then(parse_bin);
             }
           });
-          appContext.addTab(new SeqTab(seq, title));
+          appContext.addTab(new SeqTab(seq, title, "bin:" + rest));
         };
       case "addprimers":
         return () => {
@@ -70,6 +67,8 @@ function InfoView({
             appContext.addPrimer({ name, seq, desc });
           }
         };
+      default:
+       appContext.openUrl(href);
     }
   };
   React.useEffect(() => {

@@ -23,8 +23,9 @@ const StandardTemplates = React.memo(() => {
         <MenuButton
           key={idx}
           onClick={() => {
-            const seq = utils.fetchBinary(`${t.basename}.bin`).then(parse_bin);
-            appContext.addTab(new SeqTab(seq, t.name));
+            const filename = `${t.basename}.bin`;
+            const seq = utils.fetchBinary(filename).then(parse_bin);
+            appContext.addTab(new SeqTab(seq, t.name, "bin:" + filename));
           }}
         >
           {t.name}
@@ -45,6 +46,7 @@ interface State {
 
 export interface AppContext {
   updateTab: (oldTab: Tab, newTab: Tab) => void;
+  openUrl: (url: string) => void;
   addTab: (newTab: Tab) => void;
   saveFragment: (s: Seq) => Promise<void>;
   loadFiles: (f: FileList) => void;
@@ -90,6 +92,7 @@ class App extends React.PureComponent<{}, State> {
       addPrimer: (p: Primer) => {
         this.setState(s => ({ primers: s.primers.append(p) }));
       },
+      openUrl: this.openUrl,
       logMessages,
       db: new Db()
     };
@@ -211,6 +214,24 @@ class App extends React.PureComponent<{}, State> {
       );
     }
   };
+  public openUrl = (url: string) => {
+    // first check if this url is already open, and if so switch to that tab
+    for (const t of this.state.tabs) {
+      if (t.hash === url) {
+        this.setState({selectedTab: t});
+        return;
+      }
+    }
+    const {scheme, rest} = utils.splitUrl(url);
+    switch (scheme) {
+      case "info":
+       this.addTab(new InfoTab(rest, rest)); // TODO: set name
+       break;
+       case "bin":
+       this.addTab(new SeqTab(utils.fetchBinary(rest).then(parse_bin), rest, url));
+       break;
+    }
+  }
   public updateFragments = fragments => {
     this.setState({ fragments });
   };
@@ -370,10 +391,21 @@ class App extends React.PureComponent<{}, State> {
       </div>
     );
   }
+  public componentDidUpdate(prevProps, prevState: State) {
+    if (prevState.selectedTab !== this.state.selectedTab) {
+      const hash = this.state.selectedTab ? this.state.selectedTab.hash : null;
+      window.location.replace("#!" + (hash || ""));
+    }
+  }
   public componentDidMount() {
     appContext.db.fragments.toArray(fragments =>
       this.setState({ fragments: new ListData(fragments) })
     );
+    const hash = window.location.hash;
+    if (hash) {
+      // remove "#!";
+      this.openUrl(hash.substring(2));
+    }
   }
 }
 

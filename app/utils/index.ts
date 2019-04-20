@@ -260,3 +260,10 @@ export function escapeRegExp(s: string) {
 export function isDevMode(): boolean {
   return process.env.NODE_ENV === "development";
 }
+
+export function splitUrl(url: string): { scheme: string; rest: string } {
+  const colon = url.indexOf(":");
+  const scheme = url.slice(0, colon);
+  const rest = url.slice(colon + 1);
+  return { scheme, rest };
+}

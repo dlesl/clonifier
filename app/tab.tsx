@@ -19,6 +19,11 @@ export abstract class Tab {
   get seq(): Promise<Seq> | null {
     return null;
   }
+  /// override this if the tab should be addressable by URL, i.e. if the content can be reproducibly
+  /// represented by a short string, e.g. info pages, templates that can be fetched etc.
+  get hash(): string | null {
+    return null;
+  }
 }
 
 export interface TabButtonProps {

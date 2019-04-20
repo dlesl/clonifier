@@ -33,7 +33,8 @@ function Button({
 
 export default class SeqTab extends Tab {
   private readonly data: Promise<Seq>;
-  constructor(seq: Promise<Seq>, private readonly filename?: string) {
+  /// set `url` if you want this sequence to be linkable, i.e. if it can be fetched from a url
+  constructor(seq: Promise<Seq>, private readonly filename?: string, private readonly url?: string) {
     super();
     this.data = seq;
   }
@@ -60,6 +61,9 @@ export default class SeqTab extends Tab {
   }
   public async free() {
     (await this.seq).free();
+  }
+  get hash(): string | null {
+    return this.url || null;
   }
 }
 
