@@ -81,7 +81,6 @@ function InfoView({
       const href = l.getAttribute("href");
       if (href != null && href != "") {
         const title = l.getAttribute("title");
-        l.setAttribute("href", "#");
         const action = onLinkClicked(href, title ? title.toString() : "");
         l.addEventListener("click", e => {
           e.preventDefault();
