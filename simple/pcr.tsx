@@ -117,12 +117,8 @@ function App() {
       maxLen
     };
     const primers = primersText.split("\n").map((p, idx) => {
-      const split = p.split(/\s/);
-      if (
-        split.length > 1 &&
-        split[0].trim().length > 1 &&
-        split[1].trim().length > 1
-      ) {
+      const split = p.split(/\s+/).filter(s => s.length > 0);
+      if (split.length > 1) {
         return { name: split[0].trim(), seq: split[1].trim(), desc: "" };
       }
       return {
