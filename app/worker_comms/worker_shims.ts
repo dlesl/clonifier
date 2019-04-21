@@ -47,6 +47,10 @@ export function parse_gb(arg0: ArrayBuffer): Promise<Seq[]> {
   return workerCall("parse_gb", "obj_array", [arg0], ["binary"], [arg0]);
 }
 
+export function parse_fasta(arg0: ArrayBuffer): Promise<Seq[]> {
+  return workerCall("parse_fasta", "obj_array", [arg0], ["binary"], [arg0]);
+}
+
 export function parse_bin(arg0: ArrayBuffer): Promise<Seq> {
   return workerCall("parse_bin", "obj", [arg0], ["binary"], [arg0]);
 }

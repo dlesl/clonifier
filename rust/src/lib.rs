@@ -12,6 +12,7 @@ use std::str;
 use bincode::{deserialize_from, serialize_into};
 use gb_io::reader::SeqReader;
 use gb_io::seq::*;
+use bio::io::fasta;
 
 #[derive(Serialize, Deserialize, PartialEq)]
 struct BinSeqVersion(u32);
@@ -59,6 +60,22 @@ pub fn parse_gb(data: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
         res.push(JsValue::from(JsSeq(Rc::new(
             seq.map_err(|e| Error::new(&format!("Parsing failed: {}", e)))?,
         ))));
+    }
+    Ok(res.into_boxed_slice())
+}
+
+#[wasm_bindgen]
+pub fn parse_fasta(data: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
+    let mut res = Vec::new();
+    for r in fasta::Reader::new(data).records() {
+        let r = r.map_err(|e| Error::new(&format!("Parsing failed: {}", e)))?;
+        r.check().map_err(|e| Error::new(&format!("Invalid sequence: {}", e)))?;
+        let seq = Seq {
+            seq: r.seq().into(),
+            name: Some(r.id().into()),
+            ..Seq::empty()
+        };
+        res.push(JsValue::from(JsSeq(Rc::new(seq))));
     }
     Ok(res.into_boxed_slice())
 }
