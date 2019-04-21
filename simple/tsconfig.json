@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "esnext", // needed to have dynamic imports
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "es2018"
+        ],
+        "sourceMap": true,
+        // "noImplicitAny": false,
+        "downlevelIteration": true,
+        "importHelpers": true,
+        "target": "es5",
+        // "allowJs": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        // "strict": true
+    },
+    "include": [
+        "./**/*"
+    ],
+}

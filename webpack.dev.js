@@ -1,5 +1,6 @@
 const merge = require("webpack-merge");
-const [common_app, common_worker] = require("./webpack.common.js");
+const [commonApp, commonWorker] = require("./webpack.common.js");
+const simpleApps = require("./simple/webpack.js");
 
 const app = {
   mode: "development",
@@ -14,4 +15,4 @@ const worker = {
   devtool: "source-map"
 };
 
-module.exports = [merge(common_app, app), merge(common_worker, worker)];
+module.exports = [merge(commonApp, app), merge(commonWorker, worker), ...simpleApps.map(a => merge(a, app))];

@@ -1,0 +1,14 @@
+textarea {
+  font-family: monospace;
+  height: 10em;
+  width: 100%;
+}
+tr.clickable {
+  cursor: pointer;
+}
+tr.clickable:hover {
+  background: burlywood;
+}
+select {
+    width: 100%;
+}
