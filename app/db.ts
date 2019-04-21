@@ -1,6 +1,6 @@
 import Dexie from "dexie";
 import { Seq, parse_bin } from "./worker_comms/worker_shims";
-import { readFileBinary } from "./utils";
+import { readFileBinary } from "./utils/io";
 
 export interface Primer {
   name: string;

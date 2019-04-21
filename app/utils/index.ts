@@ -1,4 +1,3 @@
-import { saveAs } from "file-saver";
 import { MutableRefObject, useEffect, useState, useRef } from "react";
 import ResizeObserver from "resize-observer-polyfill";
 import { ValidationResult } from "../edit_field";
@@ -126,15 +125,6 @@ export const { getMonoCharDimensions } = new class {
   };
 }();
 
-export function readFileBinary(file: Blob): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = e => resolve(fr.result as ArrayBuffer);
-    fr.onerror = e => reject(new Error("Reading file failed: " + fr.result));
-    fr.readAsArrayBuffer(file);
-  });
-}
-
 // from here, mostly: https://github.com/bvaughn/react-window/issues/5
 export function useElementSize(elementRef: MutableRefObject<HTMLElement>) {
   const [{ width, height }, setSize] = useState({ width: 0, height: 0 });
@@ -172,15 +162,6 @@ export function fastCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-export function readAsArrayBuffer(file: Blob): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = e => resolve(fr.result as ArrayBuffer);
-    fr.onerror = e => reject(new Error(`Error reading file: ${e}`));
-    fr.readAsArrayBuffer(file);
-  });
-}
-
 export function noWhiteSpace(val: string): ValidationResult {
   if (/\s/.test(val)) {
     return "No whitespace allowed";
@@ -188,32 +169,6 @@ export function noWhiteSpace(val: string): ValidationResult {
   return undefined;
 }
 
-function promiseFetch(url: string): Promise<Response> {
-  return fetch(url).then(response => {
-    if (response.ok) {
-      return response;
-    } else {
-      throw new Error("Invalid response: " + response.statusText);
-    }
-  });
-}
-
-export function fetchText(url: string): Promise<string> {
-  return promiseFetch(url).then(r => r.text());
-}
-
-export function fetchBinary(url: string): Promise<ArrayBuffer> {
-  return promiseFetch(url).then(r => r.arrayBuffer());
-}
-
-export function downloadData(
-  data: ArrayBuffer,
-  fileName: string,
-  mimeType: string
-) {
-  const blob = new Blob([data], { type: mimeType });
-  saveAs(blob, fileName);
-}
 
 export function useDebouncedQueuedSearch<Q, R>(
   search: (query: Q) => Promise<R>

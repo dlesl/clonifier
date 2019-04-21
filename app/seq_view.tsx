@@ -10,6 +10,7 @@ import * as utils from "./utils";
 import { Seq } from "./worker_comms/worker_shims";
 import { Diagram, IArrow, intersectsInterval, colourScale } from "./diagram";
 import { makeDialog, promptDialog } from "./utils/dialogs";
+import { downloadData } from "./utils/io";
 
 type Feature = any; // TODO update
 
@@ -224,7 +225,7 @@ function SeqView({ data, onUpdate }: Props) {
                 seq
                   .to_gb()
                   .then(gb =>
-                    utils.downloadData(gb, name + ".gb", "chemical/x-genbank")
+                    downloadData(gb, name + ".gb", "chemical/x-genbank")
                   )
               }
             >

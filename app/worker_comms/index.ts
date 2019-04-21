@@ -4,16 +4,47 @@ import {
   DeleteRequest,
   NewRequest,
   Response,
-  DbgLogObjectsRequest
+  DbgLogObjectsRequest,
+  LogMessage
 } from "../../worker/shared";
 import * as workerShims from "./worker_shims";
-import { bsod, appContext } from "..";
 
 const worker = new Worker("worker.js");
 
+function handlerQueueUntilSet<T>(): [
+  ((e: T) => void),
+  (handler: (e: T) => void) => void
+] {
+  let queue = new Array<T>();
+  let _handler = null;
+  const handler = (e: T) => {
+    if (_handler) {
+      _handler(e);
+    } else {
+      queue.push(e);
+    }
+  };
+  const setHandler = (h: (e: T) => void) => {
+    _handler = h;
+    if (queue) {
+      for (const e of queue) {
+        _handler(e);
+      }
+      queue = null;
+    }
+  };
+  return [handler, setHandler];
+}
+
+const [onError, setOnError] = handlerQueueUntilSet<string>();
+export const setErrorHandler = setOnError;
+
+const [onLogMessage, setOnLogMessage] = handlerQueueUntilSet<LogMessage>();
+export const setLogHandler = setOnLogMessage;
+
 // if the worker fails, bail
 worker.onerror = ev =>
-  bsod(
+  onError(
     "Worker failed\n" + ev ? `${ev.filename}:${ev.lineno} : ${ev.message}` : ""
   );
 
@@ -99,7 +130,7 @@ worker.onmessage = e => {
       break;
     case "log":
       {
-        appContext.logMessage(resp.msg);
+        onLogMessage(resp.msg);
       }
       break;
   }

@@ -13,8 +13,9 @@ import { standardTemplates } from "../templates";
 import { LogMessage } from "../worker/shared";
 import LogTab from "./log_view";
 import { ErrorBoundary } from "./components/error_boundary";
-import { dbgPendingCalls, dbgLogObjects } from "./worker_comms";
+import { dbgPendingCalls, dbgLogObjects, setErrorHandler, setLogHandler } from "./worker_comms";
 import { showWelcome } from "./config";
+import { readFileBinary, fetchBinary } from "./utils/io";
 
 const StandardTemplates = React.memo(() => {
   return (
@@ -24,7 +25,7 @@ const StandardTemplates = React.memo(() => {
           key={idx}
           onClick={() => {
             const filename = `${t.basename}.bin`;
-            const seq = utils.fetchBinary(filename).then(parse_bin);
+            const seq = fetchBinary(filename).then(parse_bin);
             appContext.addTab(new SeqTab(seq, t.name, "bin:" + filename));
           }}
         >
@@ -96,6 +97,8 @@ class App extends React.PureComponent<{}, State> {
       logMessages,
       db: new Db()
     };
+    // set up worker logging
+    setLogHandler(appContext.logMessage);
     const welcome = showWelcome.val
       ? new InfoTab("Welcome", "welcome.html")
       : null;
@@ -120,8 +123,7 @@ class App extends React.PureComponent<{}, State> {
     this.setState({ selectedPanel: Panel.Fragments });
     for (const f of files) {
       const name = f.name;
-      utils
-        .readAsArrayBuffer(f)
+      readFileBinary(f)
         .then(parse_gb)
         .then(seqs => seqs.forEach(seq => this.saveFragment(seq)))
         .catch(e => alert(`Importing '${name}' failed: ${e.toString()}`));
@@ -133,7 +135,7 @@ class App extends React.PureComponent<{}, State> {
     try {
       for (const f of files) {
         const seq = (async () => {
-          const ab = await utils.readAsArrayBuffer(f);
+          const ab = await readFileBinary(f);
           const seqs: Seq[] = await parse_gb(ab);
           if (seqs.length === 0) {
             throw new Error(`File: '${f.name}' contains no sequences`);
@@ -228,7 +230,7 @@ class App extends React.PureComponent<{}, State> {
        this.addTab(new InfoTab(rest, rest)); // TODO: set name
        break;
        case "bin":
-       this.addTab(new SeqTab(utils.fetchBinary(rest).then(parse_bin), rest, url));
+       this.addTab(new SeqTab(fetchBinary(rest).then(parse_bin), rest, url));
        break;
     }
   }
@@ -415,6 +417,9 @@ export function bsod(e: string) {
   document.getElementById("bsod").removeAttribute("style");
   document.getElementById("bsod_message").innerText = e;
 }
+
+// set worker error handler
+setErrorHandler(bsod);
 
 // signal to the error handler in index.html that we made it this far
 window["_appLoadSuccess"] = true;

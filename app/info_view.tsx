@@ -2,11 +2,12 @@ import * as React from "react";
 import { appContext } from ".";
 import { readCachedPromise } from "./utils/suspense";
 import { Tab } from "./tab";
-import { fetchText, fetchBinary, splitUrl } from "./utils";
+import { fetchText, fetchBinary } from "./utils/io";
 import { parse_bin } from "./worker_comms/worker_shims";
 import SeqTab from "./seq_view";
 import { settings } from "./config";
 import { url } from "inspector";
+import { splitUrl } from "./utils";
 
 export default class InfoTab extends Tab {
   private name: string;
