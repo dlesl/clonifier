@@ -135,7 +135,7 @@ fn run_async(
         let matches = match matches {
             Some(matches) => matches,
             None => {
-                let max_primers = 40_000_000 / seq.len() as usize; // TODO: magic number
+                let max_primers = 40_000_000 / cmp::max(seq.len(), 1) as usize; // TODO: magic number
                 let max_primers = cmp::max(1, max_primers);
                 let chunks = primers.chunks(max_primers);
                 let mut fwd = Vec::new();
