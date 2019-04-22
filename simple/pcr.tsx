@@ -11,7 +11,7 @@ import {
   JsMatch,
   parse_fasta
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS } from "./common";
+import { useIntFromInputLS, useScrollToRef } from "./common";
 import "hack";
 import "./common.css";
 
@@ -58,6 +58,9 @@ function App() {
   const [running, setRunning] = React.useState(false);
   const [products, setProducts] = React.useState<JsProduct[]>(null);
   const [matches, setMatches] = React.useState<JsMatch[]>(null);
+  const resultsRef = React.useRef<HTMLHRElement>();
+  // scroll results into view when they have all arrived
+  useScrollToRef(resultsRef, [!!products && !!matches]);
   const cachedSeq = React.useRef<Seq>(null);
   const freeCachedSeq = () => {
     if (cachedSeq.current) cachedSeq.current.free();
@@ -233,7 +236,7 @@ function App() {
         <div className="container">
           {(matches || products) && (
             <>
-              <hr/>
+              <hr ref={resultsRef}/>
               <h2>Results</h2>
               <h3>Products</h3>
               <table>

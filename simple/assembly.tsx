@@ -10,7 +10,7 @@ import {
   Assembly,
   AssemblyResult
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS } from "./common";
+import { useIntFromInputLS, useScrollToRef } from "./common";
 import "hack";
 import "./common.css";
 
@@ -41,6 +41,9 @@ function App() {
   const [circular, setCircular] = React.useState<any[]>(null);
   const [linear, setLinear] = React.useState<any[]>(null);
   const [seqs, setSeqs] = React.useState<SeqWrapper[]>([]);
+  const resultsRef = React.useRef<HTMLHRElement>();
+  // scroll results into view when they have all arrived
+  useScrollToRef(resultsRef, [!!circular && !!linear]);
   const onLoadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.persist();
     e.preventDefault();
@@ -60,7 +63,8 @@ function App() {
     const templateText = templateRef.current.value;
     const ab = enc.encode(templateText).buffer;
     try {
-      parseSeq(ab);
+      await parseSeq(ab);
+      templateRef.current.value = "";
     } catch (e) {
       alert("" + e);
     }
@@ -179,7 +183,7 @@ function App() {
       </button>
       {(circular || linear) && (
         <>
-          <hr/>
+          <hr ref={resultsRef}/>
           <h2>Results</h2>
           <h3>Circular products</h3>
           <table>
