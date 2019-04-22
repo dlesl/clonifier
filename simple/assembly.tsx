@@ -10,7 +10,7 @@ import {
   Assembly,
   AssemblyResult
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS, useScrollToRef } from "./common";
+import { useIntFromInputLS, useScrollToRef, ForkMe } from "./common";
 import "hack";
 import "./common.css";
 
@@ -126,6 +126,7 @@ function App() {
     extractProduct(result.current.extract_product_linear(idx), idx);
   return (
     <div className="container">
+    <ForkMe/>
       <input
         type="file"
         ref={fileRef}

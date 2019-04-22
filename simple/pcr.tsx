@@ -11,7 +11,7 @@ import {
   JsMatch,
   parse_fasta
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS, useScrollToRef } from "./common";
+import { useIntFromInputLS, useScrollToRef, ForkMe } from "./common";
 import "hack";
 import "./common.css";
 
@@ -148,6 +148,7 @@ function App() {
   };
   return (
     <>
+      <ForkMe/>
       <section>
         <div className="container">
           <h1 className="title">

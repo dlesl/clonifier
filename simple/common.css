@@ -10,5 +10,21 @@ tr.clickable:hover {
   background: burlywood;
 }
 select {
-    width: 100%;
+  width: 100%;
+}
+.fork_me {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: unset;
+  border-bottom: unset;
+  background-color: unset;
+}
+.fork_me:hover {
+  background-color: unset;
+}
+@media only screen and (max-width: 1180px) {
+  .fork_me {
+    display: none;
+  }
 }
