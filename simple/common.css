@@ -28,3 +28,6 @@ select {
     display: none;
   }
 }
+.spacer {
+  flex: 0 1 0.5em;
+}

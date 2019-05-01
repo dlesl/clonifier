@@ -11,7 +11,12 @@ import {
   JsMatch,
   parse_fasta
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS, useScrollToRef, ForkMe } from "./common";
+import {
+  useIntFromInputLS,
+  useScrollToRef,
+  ForkMe,
+  PromiseSpinnerButton
+} from "./common";
 import "hack";
 import "./common.css";
 
@@ -140,15 +145,43 @@ function App() {
     setMatches(matches);
     setRunning(false);
   };
+  const annotateMatches = async () => {
+    if (!result.current) {
+      await pcr();
+    }
+    if (result.current) {
+      const matches = await result.current.get_matches();
+      const res = await result.current.annotate_matches(
+        matches.map((_, idx) => idx)
+      );
+      const gb = await res.to_gb();
+      downloadData(gb, `matches.gb`, "text/plain");
+    }
+  };
+  const annotateProducts = async () => {
+    if (!result.current) {
+      await pcr();
+    }
+    if (result.current) {
+      const products = await result.current.get_products();
+      const res = await result.current.annotate_products(
+        products.map((_, idx) => idx)
+      );
+      const gb = await res.to_gb();
+      downloadData(gb, `products.gb`, "text/plain");
+    }
+  };
   const extractProduct = async (idx: number) => {
     const product = await result.current.extract_product(idx);
     const data = await product.to_gb();
     product.free();
     downloadData(data, `product_${idx}.gb`, "text/plain");
   };
+  const disabled =
+    running || minFp === null || minLen === null || maxLen === null;
   return (
     <>
-      <ForkMe/>
+      <ForkMe />
       <section>
         <div className="container">
           <h1 className="title">
@@ -221,23 +254,44 @@ function App() {
               className="form-control"
             />
           </fieldset>
-          <button
-            className="btn btn-primary btn-block"
-            disabled={
-              running || minFp === null || minLen === null || maxLen === null
-            }
-            onClick={() => pcr()}
-          >
-            Go!
-            {running && <span className="loading" />}
-          </button>
+          <div className="grid">
+            <div className="cell">
+              <PromiseSpinnerButton
+                className="btn btn-primary btn-block"
+                disabled={disabled}
+                onClick={pcr}
+              >
+                Go!
+              </PromiseSpinnerButton>
+            </div>
+            <div className="cell spacer" />
+            <div className="cell">
+              <PromiseSpinnerButton
+                className="btn btn-primary btn-block"
+                disabled={disabled}
+                onClick={annotateMatches}
+              >
+                Annotate primer binding
+              </PromiseSpinnerButton>
+            </div>
+            <div className="cell spacer" />
+            <div className="cell">
+              <PromiseSpinnerButton
+                className="btn btn-primary btn-block"
+                disabled={disabled}
+                onClick={annotateProducts}
+              >
+                Annotate products
+              </PromiseSpinnerButton>
+            </div>
+          </div>
         </div>
       </section>
       <section>
         <div className="container">
           {(matches || products) && (
             <>
-              <hr ref={resultsRef}/>
+              <hr ref={resultsRef} />
               <h2>Results</h2>
               <h3>Products</h3>
               <table>

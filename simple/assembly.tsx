@@ -10,7 +10,7 @@ import {
   Assembly,
   AssemblyResult
 } from "../app/worker_comms/worker_shims";
-import { useIntFromInputLS, useScrollToRef, ForkMe } from "./common";
+import { useIntFromInputLS, useScrollToRef, ForkMe, PromiseSpinnerButton } from "./common";
 import "hack";
 import "./common.css";
 
@@ -178,10 +178,9 @@ function App() {
               className="form-control"
             />
           </fieldset>
-      <button className="btn btn-primary btn-block" disabled={running || minFp === null} onClick={() => assemble()}>
+      <PromiseSpinnerButton className="btn btn-primary btn-block" disabled={running || minFp === null} onClick={assemble}>
         Assemble!
-        {running && <span className="loading" />}
-      </button>
+      </PromiseSpinnerButton>
       {(circular || linear) && (
         <>
           <hr ref={resultsRef}/>

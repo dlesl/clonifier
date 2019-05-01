@@ -51,3 +51,31 @@ export const ForkMe = () => {
     </a>
   );
 };
+
+export const PromiseSpinnerButton = ({
+  className,
+  disabled,
+  onClick,
+  children
+}: {
+  className: string;
+  disabled?: boolean,
+  onClick: () => Promise<void>;
+  children: any;
+}) => {
+  const [spinning, setSpinning] = React.useState(false);
+  return (
+    <button
+      className={className}
+      onClick={async () => {
+        setSpinning(true);
+        await onClick();
+        setSpinning(false);
+      }}
+      disabled={disabled || spinning}
+    >
+      {children}
+      {spinning && <span className="loading" />}
+    </button>
+  );
+};
