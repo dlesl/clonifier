@@ -1,3 +1,4 @@
+dist: xenial
 language: rust
 
 install:
@@ -15,6 +16,7 @@ cache:
   - rust/target
   - $HOME/.cargo
   - node_modules
+  - binaryen_build
 
 deploy:
   provider: pages

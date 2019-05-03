@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "webpack-dev-server -d --config webpack.dev.js",
-    "prebuild": "mkdir dist; rm -rf dist/*; mkdir dist/tmp",
-    "build": "webpack --config webpack.prod.js && webpack --config webpack.templates.js",
-    "postbuild": "node dist/tmp/build_templates.js; rm -rf dist/tmp"
+    "build": "./build.sh"
   },
   "devDependencies": {
     "@types/d3": "^5.7.2",
