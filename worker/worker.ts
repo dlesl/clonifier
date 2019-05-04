@@ -1,4 +1,4 @@
-import { ErrorResponse, Request, Response, LogResponse, WorkerReady } from "./shared";
+import { ErrorResponse, Request, Response, LogResponse } from "./shared";
 
 // This web worker awaits and processes requests from the app, see
 // 'app/worker_comms'.
@@ -72,11 +72,6 @@ onmessage = e => {
 
 import("../rust/pkg").then(api => {
     api.init(); // initialise panic handler
-    // tell the app we loaded successfully
-    const ready: WorkerReady = {
-        command: "ready"
-    };
-    postMessage(ready);
     onmessage = e => {
         const req: Request = e.data;
         switch (req.command) {

@@ -59,15 +59,9 @@ export interface LogMessage {
   msg: string;
 }
 
-// sent when worker first loads
-export interface WorkerReady {
-  command: "ready";
-}
-
-
 export type Request =
   | CallRequest
   | NewRequest
   | DeleteRequest
   | DbgLogObjectsRequest;
-export type Response = CallResponse | NewResponse | ErrorResponse | LogResponse | WorkerReady;
+export type Response = CallResponse | NewResponse | ErrorResponse | LogResponse;

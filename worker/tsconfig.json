@@ -4,7 +4,7 @@
     "lib": ["webworker", "es2018", "scripthost"],
     "sourceMap": true,
     // "noImplicitAny": false,
-    "target": "es5",
+    "target": "es2018",
     "allowJs": true,
     "moduleResolution": "node"
     // "strict": true

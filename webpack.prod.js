@@ -13,8 +13,7 @@ const pages = [commonApp, ...simpleApps].map(p =>
           parallel: true,
           sourceMap: true, // Must be set to true if using source-maps in production
           terserOptions: {
-            keep_classnames: true,
-            keep_fnames: true
+            keep_classnames: true
           }
         })
       ]
@@ -31,8 +30,7 @@ const worker = {
         parallel: true,
         sourceMap: true, // Must be set to true if using source-maps in production
         terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
+          keep_classnames: true
         }
       })
     ]

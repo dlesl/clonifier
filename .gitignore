@@ -6,4 +6,3 @@ rust/target
 rust/wasm-pack.log
 rust/out
 **/.vscode
-binaryen_build
