@@ -50,6 +50,8 @@ struct JsMatch<'a> {
     start: i64,
     len: i64,
     fwd: bool,
+    tm: f32,
+    tm_dbd: f32
 }
 
 #[derive(Serialize, Clone, Debug, TypescriptDefinition)]
@@ -207,6 +209,8 @@ impl PcrResults {
                     start: m.start,
                     len: m.len(),
                     fwd: is_fwd,
+                    tm: m.tmstaluc98(1000.0, 50.0).unwrap_or(std::f32::NAN),
+                    tm_dbd: m.tmbresluc(1000.0, 50.0).unwrap_or(std::f32::NAN),
                 })
                 .collect::<Vec<_>>()
         } else {

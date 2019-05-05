@@ -331,6 +331,8 @@ function App() {
                     <th>Primer</th>
                     <th>Start</th>
                     <th>Length</th>
+                    <th>Tm</th>
+                    <th>Tm (Phusion)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -342,6 +344,8 @@ function App() {
                           <td>{m.primer.name}</td>
                           <td>{m.start}</td>
                           <td>{m.len}</td>
+                          <td>{m.tm.toFixed(1)}</td>
+                          <td>{m.tmDbd.toFixed(1)}</td>
                         </tr>
                       );
                     })}

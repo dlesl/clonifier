@@ -80,6 +80,8 @@ export interface JsMatch {
     start: number;
     len: number;
     fwd: boolean;
+    tm: number;
+    tmDbd: number;
 }
 
 export interface JsProduct {
