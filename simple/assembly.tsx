@@ -167,7 +167,7 @@ function App() {
           </button>
           <h2>Settings</h2>
           <fieldset className="form-group">
-            <label htmlFor="minfp">Min 3' homology</label>
+            <label htmlFor="minfp">Min homology</label>
             <input
               id="minfp"
               type="number"
