@@ -30,11 +30,8 @@ const pcr = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "PCR",
       filename: "simple_pcr.html",
-      meta: {
-        viewport: "width=device-width, initial-scale=1.0"
-      }
+      template: path.resolve(__dirname, "pcr.html")
     })
   ]
 };
@@ -48,11 +45,8 @@ const assembly = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "Assembly",
       filename: "simple_assembly.html",
-      meta: {
-        viewport: "width=device-width, initial-scale=1.0"
-      }
+      template: path.resolve(__dirname, "assembly.html")
     })
   ]
 };

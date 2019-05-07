@@ -239,6 +239,5 @@ function App() {
   );
 }
 
-const app = document.createElement("div");
-document.body.appendChild(app);
-ReactDOM.render(<App />, app);
+const root = document.getElementById("root");
+ReactDOM.render(<App />, root);
