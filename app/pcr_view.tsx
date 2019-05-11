@@ -68,10 +68,10 @@ export class PcrTab extends Tab {
     );
   }
   public renderButton() {
-    return "pcr";
+    return "Untitled PCR";
   }
   get symbol() {
-    return "[p]";
+    return "🧪";
   }
   public async run(newSettings: PcrSettings) {
     this.update(
