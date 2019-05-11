@@ -13,9 +13,14 @@ import { standardTemplates } from "../templates";
 import { LogMessage } from "../worker/shared";
 import LogTab from "./log_view";
 import { ErrorBoundary } from "./components/error_boundary";
-import { dbgPendingCalls, dbgLogObjects, setErrorHandler, setLogHandler } from "./worker_comms";
-import { showWelcome } from "./config";
-import { readFileBinary, fetchBinary } from "./utils/io";
+import {
+  dbgPendingCalls,
+  dbgLogObjects,
+  setErrorHandler,
+  setLogHandler
+} from "./worker_comms";
+import { showWelcome, useFileNames } from "./config";
+import { readFileBinary, fetchBinary, removeGbExt } from "./utils/io";
 import SettingsTab from "./settings_view";
 
 const StandardTemplates = React.memo(() => {
@@ -124,30 +129,41 @@ class App extends React.PureComponent<{}, State> {
     this.setState({ selectedPanel: Panel.Fragments });
     for (const f of files) {
       const name = f.name;
-      readFileBinary(f)
-        .then(parse_gb)
-        .then(seqs => seqs.forEach(seq => this.saveFragment(seq)))
-        .catch(e => alert(`Importing '${name}' failed: ${e.toString()}`));
+      (async () => {
+        try {
+          const data = await readFileBinary(f);
+          const seqs = await parse_gb(data);
+          if (seqs.length === 1 && useFileNames.val) {
+            const seq = await seqs[0].set_name(removeGbExt(f.name));
+            await this.saveFragment(seq);
+          } else {
+            seqs.forEach(seq => this.saveFragment(seq));
+          }
+        } catch (e) {
+          alert(`Importing '${name}' failed: ${e.toString()}`);
+        }
+      })();
     }
   };
-  public loadFiles = (files: FileList) => {
+  public loadFiles = async (files: FileList) => {
     // Open one tab per file. If a file contains no sequences, that tab will fail
     // with an error. If it contains more than one, more tabs will be opened.
     try {
       for (const f of files) {
-        const seq = (async () => {
-          const ab = await readFileBinary(f);
-          const seqs: Seq[] = await parse_gb(ab);
-          if (seqs.length === 0) {
-            throw new Error(`File: '${f.name}' contains no sequences`);
-          }
-          for (const seq of seqs.slice(1)) {
+        const ab = await readFileBinary(f);
+        const seqs: Seq[] = await parse_gb(ab);
+        if (seqs.length === 0) {
+          throw new Error(`File: '${f.name}' contains no sequences`);
+        }
+        if (seqs.length === 1 && useFileNames.val) {
+          const seq = seqs[0].set_name(removeGbExt(f.name));
+          // @ts-ignore
+          ReactDOM.flushSync(() => this.addTab(new SeqTab(seq, f.name)));
+        } else {
+          for (const seq of seqs) {
             this.addTab(new SeqTab(Promise.resolve(seq), f.name));
           }
-          return seqs[0];
-        })();
-        // @ts-ignore
-        ReactDOM.flushSync(() => this.addTab(new SeqTab(seq, f.name)));
+        }
       }
     } catch (error) {
       this.fail(error);
@@ -221,20 +237,20 @@ class App extends React.PureComponent<{}, State> {
     // first check if this url is already open, and if so switch to that tab
     for (const t of this.state.tabs) {
       if (t.hash === url) {
-        this.setState({selectedTab: t});
+        this.setState({ selectedTab: t });
         return;
       }
     }
-    const {scheme, rest} = utils.splitUrl(url);
+    const { scheme, rest } = utils.splitUrl(url);
     switch (scheme) {
       case "info":
-       this.addTab(new InfoTab(rest, rest)); // TODO: set name
-       break;
-       case "bin":
-       this.addTab(new SeqTab(fetchBinary(rest).then(parse_bin), rest, url));
-       break;
+        this.addTab(new InfoTab(rest, rest)); // TODO: set name
+        break;
+      case "bin":
+        this.addTab(new SeqTab(fetchBinary(rest).then(parse_bin), rest, url));
+        break;
     }
-  }
+  };
   public updateFragments = fragments => {
     this.setState({ fragments });
   };
@@ -294,15 +310,19 @@ class App extends React.PureComponent<{}, State> {
             </MenuButton>
           </Menu>
           <Menu name="Tools">
-            <MenuButton onClick={() => {
-              for (const t of this.state.tabs) {
-                if (t instanceof SettingsTab) {
-                  this.setState({selectedTab: t});
-                  return;
+            <MenuButton
+              onClick={() => {
+                for (const t of this.state.tabs) {
+                  if (t instanceof SettingsTab) {
+                    this.setState({ selectedTab: t });
+                    return;
+                  }
                 }
-              }
-              this.addTab(new SettingsTab());
-            }}>Settings</MenuButton>
+                this.addTab(new SettingsTab());
+              }}
+            >
+              Settings
+            </MenuButton>
           </Menu>
           <Menu name="Help">
             <MenuButton

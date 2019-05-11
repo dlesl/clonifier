@@ -44,3 +44,9 @@ export function downloadData(
   const blob = new Blob([data], { type: mimeType });
   saveAs(blob, fileName);
 }
+
+export function removeGbExt(
+  fname:string
+): string {
+  return fname.replace(/\.(gbk?|ape)$/i,"");
+}
