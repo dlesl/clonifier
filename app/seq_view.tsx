@@ -139,7 +139,7 @@ function SeqView({ data, onUpdate }: Props) {
   const featuresPaneRef = React.useRef(null);
   React.useEffect(() => {
     const resizeHandler = new utils.ResizeHandler(true);
-    resizeHandler.install(featuresPaneRef.current as Element, newHeight => {});
+    resizeHandler.install(featuresPaneRef.current as Element, null, newHeight => {});
     return () => resizeHandler.uninstall();
   }, []);
 

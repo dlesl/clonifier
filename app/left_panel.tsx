@@ -6,6 +6,7 @@ import { ListData } from "./components/list_view";
 import { PrimerList } from "./primer_list";
 import { ResizeHandler } from "./utils";
 import { Seq } from "./worker_comms/worker_shims";
+import { leftPaneWidth } from "./config";
 
 export enum Panel {
   Fragments,
@@ -34,7 +35,7 @@ export const LeftPanel = React.memo(function LeftPanel({
   React.useEffect(() => {
     appContext.db.primers.toArray(primers => setPrimers(new ListData(primers)));
     const resizeHandler = new ResizeHandler(false);
-    resizeHandler.install(divRef.current as Element, newWidth => {});
+    resizeHandler.install(divRef.current as Element, leftPaneWidth.val, newWidth => leftPaneWidth.val = newWidth);
     return () => resizeHandler.uninstall();
   }, []);
   return (

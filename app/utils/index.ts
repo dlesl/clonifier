@@ -23,7 +23,11 @@ export class ResizeHandler {
     this.lpr = null;
     this.callback = null;
   }
-  public install(panel: Element, callback: (newWidth: number) => void) {
+  public install(
+    panel: Element,
+    initialSize: number | null,
+    callback: (newSize: number) => void
+  ) {
     // check if we need to reinstall
     // var panel = document.querySelector(".left_panel");
     if (panel === this.panel) {
@@ -42,7 +46,9 @@ export class ResizeHandler {
     if (isNaN(this.minSize)) {
       this.minSize = 0;
     }
-
+    if (initialSize !== null) {
+      this.setSize(initialSize);
+    }
     this.callback = callback;
     this.dragging = false;
     this.startPos = 0;
@@ -54,24 +60,26 @@ export class ResizeHandler {
     if (this.timeout != null) {
       window.clearTimeout(this.timeout);
     }
-
     document.removeEventListener("mousemove", this);
     document.removeEventListener("mouseup", this);
   }
-  public handleEvent(e) {
+  setSize(newSize: number) {
+    this.panel.setAttribute(
+      "style",
+      (this.horizontal ? "height: " : "width: ") + newSize + "px"
+    );
+  }
+  handleEvent(e) {
     this[e.type](e);
   }
-  public mousemove(e) {
+  mousemove(e) {
     if (this.dragging) {
       e.preventDefault();
       const distance =
         (this.horizontal ? e.screenY : e.screenX) - this.startPos;
       const newSize = this.startSize + distance;
       if (newSize >= this.minSize) {
-        this.panel.setAttribute(
-          "style",
-          (this.horizontal ? "height: " : "width: ") + newSize + "px"
-        );
+        this.setSize(newSize);
         // don't re-render too often, it's expensive
         if (this.timeout !== null) {
           window.clearTimeout(this.timeout);
@@ -86,13 +94,13 @@ export class ResizeHandler {
       }
     }
   }
-  public mouseup(e) {
+  mouseup(e) {
     this.lpr.classList.remove("dragging");
     this.dragging = false;
     document.removeEventListener("mousemove", this);
     document.removeEventListener("mouseup", this);
   }
-  public mousedown(e) {
+  mousedown(e) {
     e.preventDefault();
     if (e.button == 0 && !this.dragging) {
       this.dragging = true;
@@ -107,7 +115,7 @@ export class ResizeHandler {
   }
 }
 
-export const { getMonoCharDimensions } = new class {
+export const { getMonoCharDimensions } = new (class {
   public width: number | null = null;
   public height: number | null = null;
   public getMonoCharDimensions: () => [number, number] = () => {
@@ -123,7 +131,7 @@ export const { getMonoCharDimensions } = new class {
     }
     return [this.width, this.height];
   };
-}();
+})();
 
 // from here, mostly: https://github.com/bvaughn/react-window/issues/5
 export function useElementSize(elementRef: MutableRefObject<HTMLElement>) {
@@ -168,7 +176,6 @@ export function noWhiteSpace(val: string): ValidationResult {
   }
   return undefined;
 }
-
 
 export function useDebouncedQueuedSearch<Q, R>(
   search: (query: Q) => Promise<R>
