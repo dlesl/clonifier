@@ -2,6 +2,7 @@ textarea {
   font-family: monospace;
   height: 10em;
   width: 100%;
+  resize: vertical;
 }
 tr.clickable {
   cursor: pointer;

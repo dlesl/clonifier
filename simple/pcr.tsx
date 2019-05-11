@@ -182,179 +182,175 @@ function App() {
   return (
     <>
       <ForkMe />
-      <section>
-        <div className="container">
-          <h1 className="title">
-            <i>In silico</i> PCR
-          </h1>
-          <label>
-            Template (Genbank or FASTA format)
-            <textarea
-              ref={templateRef}
-              style={{ height: "20em" }}
-              onChange={freeCachedSeq}
-            />
-          </label>
-          <input
-            type="file"
-            ref={fileRef}
-            onChange={onLoadFile}
-            multiple={false}
-            style={{ opacity: 0, width: 0, height: 0, overflow: "hidden" }}
+      <div className="container">
+        <h1 className="title">
+          <i>In silico</i> PCR
+        </h1>
+        <label>
+          Template (Genbank or FASTA format)
+          <textarea
+            ref={templateRef}
+            style={{ height: "20em" }}
+            onChange={freeCachedSeq}
           />
-          <button
-            className="btn btn-default"
-            onClick={() => fileRef.current.click()}
-          >
-            Load template from file
-          </button>
-          <p />
-          <label>
-            Primers, one per line (if two columns are provided, the first will
-            be used as names)
-            <textarea
-              value={primersText}
-              onChange={e => setPrimersText(e.target.value)}
-            />
-          </label>
-          <h2>Settings</h2>
-          <fieldset className="form-group">
-            <label htmlFor="minfp">Min 3' homology</label>
-            <input
-              id="minfp"
-              type="number"
-              defaultValue={"" + minFp}
-              min={MINFP_MIN}
-              max={MINFP_MAX}
-              onChange={setMinFp}
-              className="form-control"
-            />
-          </fieldset>
-          <fieldset className="form-group">
-            <label htmlFor="minlen">Min Length</label>
-            <input
-              id="minlen"
-              type="number"
-              defaultValue={"" + minLen}
-              min={MINLEN_MIN}
-              max={MINLEN_MAX}
-              onChange={setMinLen}
-              className="form-control"
-            />
-          </fieldset>
-          <fieldset className="form-group">
-            <label htmlFor="maxlen">Max Length</label>
-            <input
-              id="maxlen"
-              type="number"
-              defaultValue={"" + maxLen}
-              min={MAXLEN_MIN}
-              max={MAXLEN_MAX}
-              onChange={setMaxLen}
-              className="form-control"
-            />
-          </fieldset>
-          <div className="grid">
-            <div className="cell">
-              <PromiseSpinnerButton
-                className="btn btn-primary btn-block"
-                disabled={disabled}
-                onClick={pcr}
-              >
-                Go!
-              </PromiseSpinnerButton>
-            </div>
-            <div className="cell spacer" />
-            <div className="cell">
-              <PromiseSpinnerButton
-                className="btn btn-primary btn-block"
-                disabled={disabled}
-                onClick={annotateMatches}
-              >
-                Annotate primer binding
-              </PromiseSpinnerButton>
-            </div>
-            <div className="cell spacer" />
-            <div className="cell">
-              <PromiseSpinnerButton
-                className="btn btn-primary btn-block"
-                disabled={disabled}
-                onClick={annotateProducts}
-              >
-                Annotate products
-              </PromiseSpinnerButton>
-            </div>
+        </label>
+        <input
+          type="file"
+          ref={fileRef}
+          onChange={onLoadFile}
+          multiple={false}
+          style={{ opacity: 0, width: 0, height: 0, overflow: "hidden" }}
+        />
+        <button
+          className="btn btn-default"
+          onClick={() => fileRef.current.click()}
+        >
+          Load template from file
+        </button>
+        <p />
+        <label>
+          Primers, one per line (if two columns are provided, the first will be
+          used as names)
+          <textarea
+            value={primersText}
+            onChange={e => setPrimersText(e.target.value)}
+          />
+        </label>
+        <h2>Settings</h2>
+        <fieldset className="form-group">
+          <label htmlFor="minfp">Min 3' homology</label>
+          <input
+            id="minfp"
+            type="number"
+            defaultValue={"" + minFp}
+            min={MINFP_MIN}
+            max={MINFP_MAX}
+            onChange={setMinFp}
+            className="form-control"
+          />
+        </fieldset>
+        <fieldset className="form-group">
+          <label htmlFor="minlen">Min Length</label>
+          <input
+            id="minlen"
+            type="number"
+            defaultValue={"" + minLen}
+            min={MINLEN_MIN}
+            max={MINLEN_MAX}
+            onChange={setMinLen}
+            className="form-control"
+          />
+        </fieldset>
+        <fieldset className="form-group">
+          <label htmlFor="maxlen">Max Length</label>
+          <input
+            id="maxlen"
+            type="number"
+            defaultValue={"" + maxLen}
+            min={MAXLEN_MIN}
+            max={MAXLEN_MAX}
+            onChange={setMaxLen}
+            className="form-control"
+          />
+        </fieldset>
+        <div className="grid">
+          <div className="cell">
+            <PromiseSpinnerButton
+              className="btn btn-primary btn-block"
+              disabled={disabled}
+              onClick={pcr}
+            >
+              Go!
+            </PromiseSpinnerButton>
+          </div>
+          <div className="cell spacer" />
+          <div className="cell">
+            <PromiseSpinnerButton
+              className="btn btn-primary btn-block"
+              disabled={disabled}
+              onClick={annotateMatches}
+            >
+              Annotate primer binding
+            </PromiseSpinnerButton>
+          </div>
+          <div className="cell spacer" />
+          <div className="cell">
+            <PromiseSpinnerButton
+              className="btn btn-primary btn-block"
+              disabled={disabled}
+              onClick={annotateProducts}
+            >
+              Annotate products
+            </PromiseSpinnerButton>
           </div>
         </div>
-      </section>
-      <section>
-        <div className="container">
-          {(matches || products) && (
-            <>
-              <hr ref={resultsRef} />
-              <h2>Results</h2>
-              <h3>Products</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Forward primer</th>
-                    <th>Reverse primer</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Length</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products &&
-                    products.map((p, idx) => {
-                      return (
-                        <tr
-                          className="clickable"
-                          key={idx}
-                          onClick={() => extractProduct(idx)}
-                        >
-                          <td>{p.primerFwd.name}</td>
-                          <td>{p.primerRev.name}</td>
-                          <td>{p.start + 1}</td>
-                          <td>{p.end}</td>
-                          <td>{p.len}</td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-              <h3>Binding</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Strand</th>
-                    <th>Primer</th>
-                    <th>Start</th>
-                    <th>Length</th>
-                    <th>Tm</th>
-                    <th>Tm (Phusion)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {matches &&
-                    matches.map((m, idx) => {
-                      return (
-                        <tr key={idx}>
-                          <td>{m.fwd ? ">>>" : "<<<"}</td>
-                          <td>{m.primer.name}</td>
-                          <td>{m.start}</td>
-                          <td>{m.len}</td>
-                          <td>{m.tm.toFixed(1)}</td>
-                          <td>{m.tmDbd.toFixed(1)}</td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </>
-          )}
-        </div>
-      </section>
+      </div>
+      <div className="container">
+        {(matches || products) && (
+          <>
+            <hr ref={resultsRef} />
+            <h2>Results</h2>
+            <h3>Products</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Forward primer</th>
+                  <th>Reverse primer</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Length</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products &&
+                  products.map((p, idx) => {
+                    return (
+                      <tr
+                        className="clickable"
+                        key={idx}
+                        onClick={() => extractProduct(idx)}
+                      >
+                        <td>{p.primerFwd.name}</td>
+                        <td>{p.primerRev.name}</td>
+                        <td>{p.start + 1}</td>
+                        <td>{p.end}</td>
+                        <td>{p.len}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+            <h3>Binding</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Strand</th>
+                  <th>Primer</th>
+                  <th>Start</th>
+                  <th>Length</th>
+                  <th>Tm</th>
+                  <th>Tm (Phusion)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matches &&
+                  matches.map((m, idx) => {
+                    return (
+                      <tr key={idx}>
+                        <td>{m.fwd ? ">>>" : "<<<"}</td>
+                        <td>{m.primer.name}</td>
+                        <td>{m.start}</td>
+                        <td>{m.len}</td>
+                        <td>{m.tm.toFixed(1)}</td>
+                        <td>{m.tmDbd.toFixed(1)}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </>
+        )}
+      </div>
     </>
   );
 }
