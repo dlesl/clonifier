@@ -16,6 +16,7 @@ import { ErrorBoundary } from "./components/error_boundary";
 import { dbgPendingCalls, dbgLogObjects, setErrorHandler, setLogHandler } from "./worker_comms";
 import { showWelcome } from "./config";
 import { readFileBinary, fetchBinary } from "./utils/io";
+import SettingsTab from "./settings_view";
 
 const StandardTemplates = React.memo(() => {
   return (
@@ -292,7 +293,17 @@ class App extends React.PureComponent<{}, State> {
               Close all
             </MenuButton>
           </Menu>
-          <Menu name="Tools" />
+          <Menu name="Tools">
+            <MenuButton onClick={() => {
+              for (const t of this.state.tabs) {
+                if (t instanceof SettingsTab) {
+                  this.setState({selectedTab: t});
+                  return;
+                }
+              }
+              this.addTab(new SettingsTab());
+            }}>Settings</MenuButton>
+          </Menu>
           <Menu name="Help">
             <MenuButton
               onClick={() => this.addTab(new InfoTab("Guide", "guide.html"))}
