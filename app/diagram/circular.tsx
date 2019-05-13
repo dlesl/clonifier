@@ -12,7 +12,8 @@ import {
   spacing,
   arrowLength,
   textPadding,
-  DiagramProps
+  DiagramProps,
+  DiagramHandle
 } from ".";
 import { mod } from "../utils";
 
@@ -29,7 +30,7 @@ export default React.forwardRef(
       hidden,
       highlightedFeature /*, setVisibleInterval*/
     }: DiagramProps,
-    ref
+    ref: React.Ref<DiagramHandle>
   ) => {
     console.log(render++);
     const [divId] = React.useState(() => newDivId());
@@ -53,18 +54,15 @@ export default React.forwardRef(
         ReactDOM.flushSync(() => setRotation(r => mod(r + theta, PI2)));
       });
     }, []);
-    const visibleInterval = [0, len - 1]; // gets updated later
+    const visibleRange = [0, len - 1]; // gets updated later
     React.useImperativeHandle(ref, () => ({
-      zoomTo: (featureIdx: number) => {
-        const arrows = data.filter(a => a.featureId === featureIdx);
-        const fStart = Math.min(...arrows.map(a => a.start));
-        const fEnd = Math.max(...arrows.map(a => a.end));
+      scrollTo: (fStart: number, fEnd: number) => {
         const aStart = (PI2 * fStart) / len;
         const aEnd = (PI2 * fEnd) / len;
         setRotation(mod(-(aEnd + aStart) / 2, PI2));
         // console.log(fStart, fEnd, aStart, aEnd);
       },
-      limits: visibleInterval,
+      visibleRange,
       twelveOClock: mod(Math.floor((-rotation / PI2) * len), len) + 1
     }));
     const circleYTranslation = radius * (scale - 1 / scale);
@@ -120,8 +118,8 @@ export default React.forwardRef(
       const intervals = [];
       left = mod(left, len);
       right = mod(right, len);
-      visibleInterval[0] = left;
-      visibleInterval[1] = right;
+      visibleRange[0] = left;
+      visibleRange[1] = right;
       limits = [left, right];
       if (right > left) {
         intervals.push([left, right]);

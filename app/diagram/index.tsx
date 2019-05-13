@@ -4,37 +4,78 @@ import { readMethodCall } from "../utils/suspense";
 import { Seq } from "../worker_comms/worker_shims";
 import LinearDiagram from "./linear";
 import CircularDiagram from "./circular";
+import { DetailsDiagram } from "./details";
 
+/** "base" props */
 export interface CommonProps {
   hidden: boolean;
   highlightedFeature: number;
+  seq: Seq;
 }
 
+/** extra props we are given */
 export type Props = CommonProps & {
-  seq: Seq;
+  showDetails: boolean;
 };
 
+/** extra props a "Diagram" receives */
 export type DiagramProps = CommonProps & {
   name: string;
   len: number;
   data: IArrow[];
-  hidden: boolean;
-  highlightedFeature: number;
 };
 
+/** The handle we receive */
+export interface Handle {
+  scrollTo: (featureIdx: number) => void;
+  getVisibleRange: () => number[];
+  /** `null` if not circular */
+  getTwelveOClock: () => number | null;
+}
+
+/** The handle we pass on */
+export interface DiagramHandle {
+  scrollTo: (start: number, end: number) => void;
+  visibleRange: number[];
+  /** `null` if not circular */
+  twelveOClock: number | null;
+}
+
+/** This Component renders the appropriate diagram based on
+ *  `Props.showDetails` and whether the sequence is circular.
+ *  It does this by rendering the appropriate component, which
+ *  receives `DiagramProps` and must also implement the imperative
+ *  interface defined by `DiagramHandle`
+ */
 export const Diagram = React.memo(
-  React.forwardRef((props: Props, ref) => {
-    const { seq, ...restProps } = props;
+  React.forwardRef((props: Props, ref: React.Ref<Handle>) => {
+    const { seq, showDetails } = props;
     const { name, len, circular } = readMethodCall(seq, seq.get_metadata);
     const data = readMethodCall(seq, seq.get_diagram_data);
-    const DiagramType = circular ? CircularDiagram : LinearDiagram;
+    let DiagramType: any;
+    if (showDetails) {
+      DiagramType = DetailsDiagram;
+    } else {
+      DiagramType = circular ? CircularDiagram : LinearDiagram;
+    }
     const diagramProps = {
+      ...props,
       name,
       len,
-      data,
-      ...restProps
+      data
     };
-    return <DiagramType ref={ref} {...diagramProps} />;
+    const subRef = React.useRef<DiagramHandle>();
+    React.useImperativeHandle(ref, () => ({
+      scrollTo: (featureIdx: number) => {
+        const arrows = data.filter(a => a.featureId === featureIdx);
+        const fStart = Math.min(...arrows.map(a => a.start));
+        const fEnd = Math.max(...arrows.map(a => a.end));
+        subRef.current.scrollTo(fStart, fEnd);
+      },
+      getVisibleRange: () => subRef.current.visibleRange,
+      getTwelveOClock: () => subRef.current.twelveOClock
+    }));
+    return <DiagramType ref={subRef} {...diagramProps} />;
   })
 );
 

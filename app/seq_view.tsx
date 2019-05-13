@@ -1,5 +1,4 @@
 import * as React from "react";
-import { FixedSizeList } from "react-window";
 import { appContext } from ".";
 import { EditField } from "./edit_field";
 import { ListData, ListView } from "./components/list_view";
@@ -8,7 +7,13 @@ import { readCachedPromise, readMethodCall } from "./utils/suspense";
 import { Tab } from "./tab";
 import * as utils from "./utils";
 import { Seq } from "./worker_comms/worker_shims";
-import { Diagram, IArrow, intersectsInterval, colourScale } from "./diagram";
+import {
+  Diagram,
+  IArrow,
+  intersectsInterval,
+  colourScale,
+  Handle
+} from "./diagram";
 import { makeDialog, promptDialog } from "./utils/dialogs";
 import { downloadData } from "./utils/io";
 
@@ -35,7 +40,11 @@ function Button({
 export default class SeqTab extends Tab {
   private readonly data: Promise<Seq>;
   /// set `url` if you want this sequence to be linkable, i.e. if it can be fetched from a url
-  constructor(seq: Promise<Seq>, private readonly filename?: string, private readonly url?: string) {
+  constructor(
+    seq: Promise<Seq>,
+    private readonly filename?: string,
+    private readonly url?: string
+  ) {
     super();
     this.data = seq;
   }
@@ -77,24 +86,20 @@ function SeqView({ data, onUpdate }: Props) {
   const seq = readCachedPromise(data);
   const { name, len, circular } = readMethodCall(seq, seq.get_metadata);
   const [showDetails, setShowDetails] = React.useState(false);
-  const diagramRef = React.useRef(null);
-  const seqRef = React.useRef(null);
+  const diagramRef = React.useRef<Handle>(null);
   const [hoveredFeatureIdx, setHoveredFeatureIdx] = React.useState<
     number | null
   >(null);
 
   const onFeatureClick = React.useCallback(
-    (f: Feature, idx: number) =>
-      showDetails
-        ? seqRef.current.scrollToFeature(f)
-        : diagramRef.current.zoomTo(idx),
-    [showDetails]
+    (f: Feature, idx: number) => diagramRef.current.scrollTo(idx),
+    []
   );
 
   const onExtractRange = async () => {
     try {
-      const visibleInterval = diagramRef.current.limits;
-      const res = await extractRangeDialog(visibleInterval.map(v => v + 1));
+      const visibleRange = diagramRef.current.getVisibleRange();
+      const res = await extractRangeDialog(visibleRange.map(v => v + 1));
       if (res !== null) {
         const [from, to] = res;
         if (
@@ -123,7 +128,7 @@ function SeqView({ data, onUpdate }: Props) {
   const onSetOrigin = async () => {
     const input = await promptDialog(
       "New origin",
-      diagramRef.current.twelveOClock.toString()
+      diagramRef.current.getTwelveOClock().toString()
     );
     if (input === null) return;
     const origin = parseInt(input, 10);
@@ -139,7 +144,11 @@ function SeqView({ data, onUpdate }: Props) {
   const featuresPaneRef = React.useRef(null);
   React.useEffect(() => {
     const resizeHandler = new utils.ResizeHandler(true);
-    resizeHandler.install(featuresPaneRef.current as Element, null, newHeight => {});
+    resizeHandler.install(
+      featuresPaneRef.current as Element,
+      null,
+      newHeight => {}
+    );
     return () => resizeHandler.uninstall();
   }, []);
 
@@ -349,26 +358,13 @@ function SeqView({ data, onUpdate }: Props) {
         <div className="resizer resizer_horizontal" />
       </div>
       <div className="template_content">
-        {!showDetails && (
-          <Diagram
-            ref={diagramRef}
-            seq={seq}
-            highlightedFeature={hoveredFeatureIdx}
-            hidden={false}
-            // setVisibleInterval={(left, right) =>
-            //   setVisibleInterval(state =>
-            //     state[0] === left && state[1] === right ? state : [left, right]
-            //   )
-            // }
-          />
-        )}
-        {showDetails && (
-          <Sequence
-            seq={seq}
-            ref={seqRef}
-            highlightedFeature={hoveredFeatureIdx}
-          />
-        )}
+        <Diagram
+          ref={diagramRef}
+          seq={seq}
+          highlightedFeature={hoveredFeatureIdx}
+          hidden={false}
+          showDetails={showDetails}
+        />
       </div>
     </div>
   );
@@ -445,139 +441,6 @@ const Features = React.memo(
     );
   }
 );
-
-const Sequence = React.memo(
-  React.forwardRef(
-    (
-      { seq, highlightedFeature }: { seq: Seq; highlightedFeature: number },
-      ref
-    ) => {
-      const { len } = readMethodCall(seq, seq.get_metadata);
-      const seqDiv = React.useRef<HTMLDivElement>(null);
-      const [seqWidth, seqHeight] = utils.useElementSize(seqDiv);
-      const [monoWidth, monoHeight] = utils.getMonoCharDimensions();
-      const seqListRef = React.useRef(null);
-      const lineNumDigits = len.toString().length;
-      const lineWidth = seqWidth - (lineNumDigits + 4) * monoWidth;
-      const lineLen = Math.max(10, Math.floor(lineWidth / monoWidth / 10) * 10);
-      const nLines = Math.ceil(len / lineLen);
-      React.useImperativeHandle(ref, () => ({
-        scrollToFeature: f => {
-          const start = f.start;
-          const line = Math.floor(start / lineLen);
-          seqListRef.current.scrollToItem(line, "center");
-        }
-      }));
-      return (
-        <div className="sequence_pane" ref={seqDiv}>
-          <FixedSizeList
-            ref={seqListRef}
-            width={seqWidth}
-            height={seqHeight}
-            overScanCount={10} // TODO: cache the seq data instead?
-            itemCount={nLines}
-            itemSize={monoHeight + 2 + 10}
-            itemData={{ seq, len, lineLen, lineNumDigits, highlightedFeature }}
-          >
-            {SeqLineSuspender}
-          </FixedSizeList>
-        </div>
-      );
-    }
-  )
-);
-function SeqLineSuspender(props) {
-  return (
-    <React.Suspense fallback={""}>
-      <SeqLine {...props} />
-    </React.Suspense>
-  );
-}
-function SeqLine({
-  data: { seq, len, lineLen, lineNumDigits, highlightedFeature },
-  index,
-  style
-}) {
-  // const { data, error, isLoading } = utils.useAsync(() =>
-  //   seq.get_seq_slice(index * LINELEN, Math.min((index + 1) * LINELEN, len))
-  // );
-  const dd: IArrow[] = readMethodCall(seq, seq.get_diagram_data);
-  const [monoWidth, monoHeight] = utils.getMonoCharDimensions();
-  const start = index * lineLen;
-  const end = Math.min((index + 1) * lineLen, len);
-  const thisLineLen = end - start;
-  const data = (readMethodCall(seq, seq.get_seq_slice, 0, len) as string).slice(
-    start,
-    end
-  ); // TODO: chunks?
-  const overlaps = dd.filter(a =>
-    intersectsInterval(a.start, a.end, start, end)
-  );
-  const highlights = overlaps.filter(a => a.featureId === highlightedFeature);
-  highlights.sort((a, b) => a.start - b.start);
-  const maxRing = React.useMemo(() => Math.max(...dd.map(a => a.ring)) + 1, [
-    dd
-  ]);
-  return (
-    <div className="seq_line" style={style}>
-      <span className="line_number">
-        {(index * lineLen + 1)
-          .toString()
-          .padStart(lineNumDigits, " " /* &nbsp; */)}
-      </span>
-      <div>
-        {highlights.length > 0 && (
-          <div className="highlights">
-            {highlights.map((a, idx) => (
-              <React.Fragment key={idx}>
-                <span>
-                  {" " /*&nbsp;*/
-                    .repeat(
-                      Math.max(
-                        0,
-                        idx === 0
-                          ? a.start - start
-                          : a.start - highlights[idx - 1].end - 1
-                      )
-                    )}
-                </span>
-                <span style={{ background: highlightedFeatureColour }}>
-                  {" " /*&nbsp;*/
-                    .repeat(
-                      Math.min(a.end + 1, end) - Math.max(a.start, start)
-                    )}
-                </span>
-              </React.Fragment>
-            ))}
-          </div>
-        )}
-        <span>{data}</span>
-        <svg
-          viewBox={`0 0 ${thisLineLen} ${maxRing * 10}`}
-          width={`${thisLineLen}px`}
-          height="10px"
-          strokeWidth="10px"
-          preserveAspectRatio="none"
-        >
-          {overlaps.map((a, idx) => {
-            const y = a.ring * 10 + 5;
-            const colour = colourScale(a.colour);
-            return (
-              <line
-                key={idx}
-                x1={Math.max(a.start, start) - start}
-                x2={Math.min(a.end + 1, end) - start}
-                y1={y}
-                y2={y}
-                stroke={colour}
-              />
-            );
-          })}
-        </svg>
-      </div>
-    </div>
-  );
-}
 
 function extractRangeDialog([defaultFrom, defaultTo]: number[]): Promise<
   number[] | null

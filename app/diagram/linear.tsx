@@ -12,7 +12,8 @@ import {
   spacing,
   arrowLength,
   textPadding,
-  DiagramProps
+  DiagramProps,
+  DiagramHandle
 } from ".";
 import { highlightedFeatureColour } from "../seq_view";
 
@@ -25,7 +26,7 @@ export default React.forwardRef(
       hidden,
       highlightedFeature /*, setVisibleInterval */
     }: DiagramProps,
-    ref
+    ref: React.Ref<DiagramHandle>
   ) => {
     const [divId] = React.useState(() => newDivId());
     const diagramDiv = React.useRef<HTMLDivElement>(null);
@@ -50,20 +51,18 @@ export default React.forwardRef(
       zoom.on("zoom", () => setTransform(d3.event.transform));
     }, []);
     React.useImperativeHandle(ref, () => ({
-      zoomTo: (featureIdx: number) => {
-        const arrows = data.filter(a => a.featureId === featureIdx);
-        const fStart = Math.min(...arrows.map(a => a.start));
-        const fEnd = Math.max(...arrows.map(a => a.end));
+      scrollTo: (fStart: number, fEnd: number) => {
         setTransform(
           d3.zoomIdentity
             .translate((-fStart / len) * width, 0)
             .scale(len / (fEnd - fStart))
         );
       },
-      limits: [
+      visibleRange: [
         Math.floor(scale.invert(padding)),
         Math.ceil(scale.invert(padding + lineLength))
-      ]
+      ],
+      twelveOClock: null
     }));
     const left = scale.invert(0);
     const right = scale.invert(width);
