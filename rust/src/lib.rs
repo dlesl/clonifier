@@ -1,4 +1,4 @@
-#![feature(async_await, await_macro, futures_api)]
+#![feature(async_await, await_macro)]
 #[macro_use]
 extern crate gb_io;
 #[macro_use]
@@ -10,9 +10,9 @@ use std::rc::Rc;
 use std::str;
 
 use bincode::{deserialize_from, serialize_into};
-use gb_io::reader::SeqReader;
-use gb_io::seq::*;
 use bio::io::fasta;
+use gb_io::{reader::SeqReader, seq::*};
+
 
 #[derive(Serialize, Deserialize, PartialEq)]
 struct BinSeqVersion(u32);
@@ -20,7 +20,7 @@ struct BinSeqVersion(u32);
 // update this if/when `gb-io::Seq` breaks compatibility
 const BIN_SEQ_FORMAT_VERSION: BinSeqVersion = BinSeqVersion(2);
 
-use js_sys::{Error, RegExp, JsString};
+use js_sys::{Error, JsString, RegExp};
 
 use wasm_bindgen::prelude::*;
 
@@ -28,10 +28,11 @@ mod arc;
 mod assembly;
 mod assembly_diagram;
 mod js_pcr;
+mod logger;
+mod search;
 mod seq_diagram;
 mod utils;
-mod search;
-mod logger;
+
 pub use crate::assembly::*;
 
 #[wasm_bindgen]
@@ -69,7 +70,8 @@ pub fn parse_fasta(data: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
     let mut res = Vec::new();
     for r in fasta::Reader::new(data).records() {
         let r = r.map_err(|e| Error::new(&format!("Parsing failed: {}", e)))?;
-        r.check().map_err(|e| Error::new(&format!("Invalid sequence: {}", e)))?;
+        r.check()
+            .map_err(|e| Error::new(&format!("Invalid sequence: {}", e)))?;
         let seq = Seq {
             seq: r.seq().into(),
             name: Some(r.id().into()),
@@ -83,11 +85,17 @@ pub fn parse_fasta(data: &[u8]) -> Result<Box<[JsValue]>, JsValue> {
 #[wasm_bindgen]
 pub fn parse_bin(mut data: &[u8]) -> Result<JsSeq, JsValue> {
     // read version tag
-    let ver: BinSeqVersion = deserialize_from(&mut data).map_err(|e| Error::new(&format!("Decoding header failed: {}", e)))?;
+    let ver: BinSeqVersion = deserialize_from(&mut data)
+        .map_err(|e| Error::new(&format!("Decoding header failed: {}", e)))?;
     if ver != BIN_SEQ_FORMAT_VERSION {
-        return Err(Error::new(&format!("Can't decode version {} of binary sequence format", ver.0)).into())
+        return Err(Error::new(&format!(
+            "Can't decode version {} of binary sequence format",
+            ver.0
+        ))
+        .into());
     }
-    let seq = deserialize_from(&mut data).map_err(|e| Error::new(&format!("Decoding failed: {}", e)))?;
+    let seq =
+        deserialize_from(&mut data).map_err(|e| Error::new(&format!("Decoding failed: {}", e)))?;
     Ok(JsSeq(Rc::new(seq)))
 }
 
@@ -140,7 +148,8 @@ impl JsSeq {
         serialize_into(&mut buf, &BIN_SEQ_FORMAT_VERSION).expect("Writing header failed");
         let seq: &Seq = &self.0;
         // can this actually fail?
-        serialize_into(&mut buf, seq).map_err(|e| Error::new(&format!("Couldn't encode: {}", e)))?;
+        serialize_into(&mut buf, seq)
+            .map_err(|e| Error::new(&format!("Couldn't encode: {}", e)))?;
         Ok(res)
     }
     pub fn to_gb(&self) -> Vec<u8> {
@@ -173,7 +182,12 @@ impl JsSeq {
         JsValue::from_serde(&self.0.features[idx].qualifiers).unwrap()
     }
 
-    pub fn search_features(&self, query: &str, case_insensitive: bool, include_keys: bool) -> Vec<u32> {
+    pub fn search_features(
+        &self,
+        query: &str,
+        case_insensitive: bool,
+        include_keys: bool,
+    ) -> Vec<u32> {
         let flags = if case_insensitive { "i" } else { "" };
         // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
         let escape_re = RegExp::new(r#"[.*+?^${}()|[\]\\]"#, "g");
@@ -185,18 +199,22 @@ impl JsSeq {
             .iter()
             .enumerate()
             .filter(|(_, f)| {
-                f.qualifiers
-                    .iter()
-                    .any(|(k, v)| (include_keys && re.test(k)) ||
-                    v.as_ref().map(|v| re.test(v)).unwrap_or(false))
+                f.qualifiers.iter().any(|(k, v)| {
+                    (include_keys && re.test(k)) || v.as_ref().map(|v| re.test(v)).unwrap_or(false)
+                })
             })
             .map(|(i, _)| i as u32)
             .collect()
     }
 
-    /// `None` if too many
-    pub fn search_seq(&self, query: &str, max_res: usize) -> Option<Vec<i32>> {
+    /// Returns `max_res + 1` results to signify that the search was terminated prematurely
+    /// This isn't very nice but sending more complex types to JS isn't easy.
+    pub fn search_seq(&self, query: &str, max_res: usize) -> Box<[JsValue]> {
         search::search(&self.0, query.as_bytes(), max_res, true)
+            .iter()
+            .map(|sr| JsValue::from_serde(sr).unwrap())
+            .collect::<Vec<_>>()
+            .into_boxed_slice()
     }
     pub fn get_seq_slice(&self, start: usize, end: usize) -> String {
         if start > self.0.seq.len() || end > self.0.seq.len() {

@@ -1,33 +1,49 @@
 use gb_io::seq::*;
 use pcr::Annealer;
 use std::cmp;
+use wasm_bindgen::prelude::*;
+
+
+#[derive(Serialize, Clone, Debug, PartialEq, TypescriptDefinition)]
+#[serde(rename_all = "camelCase")]
+pub struct SeqSearchResult {
+    start: i64,
+    end: i64,
+    fwd: bool,
+}
 
 /// reuse the pcr crate to do a fast, circular sequence search
-pub fn search(s: &Seq, query: &[u8], max_res: usize, rc: bool) -> Option<Vec<i32>> {
+/// Returns `max_res + 1` results to signify that the search was terminated prematurely
+pub fn search(s: &Seq, query: &[u8], max_res: usize, rc: bool) -> Vec<SeqSearchResult> {
     if s.seq.is_empty() || query.is_empty() {
-        return Some(Vec::new());
+        return Vec::new();
     }
     // BNDM can't handle more than 63 chars, so we limit the 'seed' to that here,
     // and check the length later
     let a = Annealer::new(&s, cmp::min(63, query.len() as i64));
-    let fwd = a.find_matches_fwd(&query);
-    // conditional iterator chaining hack, is there a nicer way?
-    let rev = if rc {
-        Some(a.find_matches_rev(&query))
-    } else {
-        None
-    };
-    let res: Vec<i32> = fwd
-        .chain(rev.into_iter().flatten())
-        .filter(|fp| fp.extent.abs() == query.len() as i64) // rev matches have extent < 0
-        .map(|fp| (fp.start + cmp::min(fp.extent + 1, 0)) as i32) // move rev matches to their end
+    let mut res = a
+        .find_matches_fwd(&query)
+        .filter(|fp| fp.extent == query.len() as i64)
+        .map(|fp| SeqSearchResult {
+            start: fp.start,
+            end: fp.start + fp.extent,
+            fwd: true,
+        })
         .take(max_res + 1)
-        .collect();
-    if res.len() == max_res + 1 {
-        None // too many hits
-    } else {
-        Some(res)
+        .collect::<Vec<_>>();
+    if rc {
+        let rev = a
+            .find_matches_rev(&query)
+            .filter(|fp| -fp.extent == query.len() as i64) // rev matches have extent < 0
+            .map(|fp| SeqSearchResult {
+                start: fp.start + fp.extent + 1,
+                end: fp.start + 1,
+                fwd: false,
+            })
+            .take(max_res + 1 - res.len());
+        res.extend(rev);
     }
+    res
 }
 
 #[cfg(test)]
@@ -42,8 +58,30 @@ mod test {
                 .into(),
             ..Seq::empty()
         };
-        assert_eq!(search(&s, b"catgcatg", 2, true), Some(vec![0, 0]));
-        assert_eq!(search(&s, b"catgcatg", 2, false), Some(vec![0]));
+
+        assert_eq!(
+            search(&s, b"catgcatg", 2, true),
+            vec![
+                SeqSearchResult {
+                    start: 0,
+                    end: 8,
+                    fwd: true
+                },
+                SeqSearchResult {
+                    start: 0,
+                    end: 8,
+                    fwd: false
+                }
+            ]
+        );
+        assert_eq!(
+            search(&s, b"catgcatg", 2, false),
+            vec![SeqSearchResult {
+                start: 0,
+                end: 8,
+                fwd: true
+            }]
+        );
         assert_eq!(
             search(
                 &s,
@@ -51,7 +89,11 @@ mod test {
                 2,
                 false
             ),
-            Some(vec![0])
+            vec![SeqSearchResult {
+                start: 0,
+                end: 63,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -60,7 +102,7 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![])
+            vec![]
         );
         assert_eq!(
             search(
@@ -69,7 +111,11 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![0])
+            vec![SeqSearchResult {
+                start: 0,
+                end: 64,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -78,7 +124,11 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![0])
+            vec![SeqSearchResult {
+                start: 0,
+                end: 68,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -87,7 +137,7 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![])
+            vec![]
         );
     }
     #[test]
@@ -98,11 +148,34 @@ mod test {
                 [..]
                 .into(),
             topology: Topology::Circular,
-            
+
             ..Seq::empty()
         };
-        assert_eq!(search(&s, b"catgcatg", 2, false), Some(vec![70]));
-        assert_eq!(search(&s, b"catgcatg", 2, true), Some(vec![70, 70]));
+        assert_eq!(
+            search(&s, b"catgcatg", 2, false),
+            vec![SeqSearchResult {
+                start: 70,
+                end: 78,
+                fwd: true
+            }]
+        );
+        assert_eq!(
+            search(&s, b"catgcatg", 2, true),
+            vec![
+                SeqSearchResult {
+                    start: 70,
+                    end: 78,
+                    fwd: true
+                },
+                SeqSearchResult {
+                    start: 70,
+                    end: 78,
+                    fwd: false
+                }
+            ]
+        );
+
+
         assert_eq!(
             search(
                 &s,
@@ -110,7 +183,11 @@ mod test {
                 2,
                 false
             ),
-            Some(vec![70])
+            vec![SeqSearchResult {
+                start: 70,
+                end: 133,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -119,7 +196,7 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![])
+            vec![]
         );
         assert_eq!(
             search(
@@ -128,7 +205,11 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![70])
+            vec![SeqSearchResult {
+                start: 70,
+                end: 134,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -137,7 +218,11 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![70])
+            vec![SeqSearchResult {
+                start: 70,
+                end: 138,
+                fwd: true
+            }]
         );
         assert_eq!(
             search(
@@ -146,7 +231,7 @@ mod test {
                 2,
                 true
             ),
-            Some(vec![])
+            vec![]
         );
     }
 }

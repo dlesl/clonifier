@@ -6,7 +6,7 @@ import PromiseButton from "./components/promise_button";
 import { readCachedPromise, readMethodCall } from "./utils/suspense";
 import { Tab } from "./tab";
 import * as utils from "./utils";
-import { Seq } from "./worker_comms/worker_shims";
+import { Seq, SeqSearchResult } from "./worker_comms/worker_shims";
 import {
   Diagram,
   IArrow,
@@ -20,8 +20,6 @@ import { downloadData } from "./utils/io";
 type Feature = any; // TODO update
 
 export const highlightedFeatureColour = "yellow";
-
-const TOO_MANY = Symbol();
 
 function Button({
   data,
@@ -92,7 +90,7 @@ function SeqView({ data, onUpdate }: Props) {
   >(null);
 
   const onFeatureClick = React.useCallback(
-    (f: Feature, idx: number) => diagramRef.current.scrollTo(idx),
+    (f: Feature, idx: number) => diagramRef.current.scrollToFeature(idx),
     []
   );
 
@@ -142,7 +140,7 @@ function SeqView({ data, onUpdate }: Props) {
   };
 
   const featuresPaneRef = React.useRef(null);
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const resizeHandler = new utils.ResizeHandler(true);
     resizeHandler.install(
       featuresPaneRef.current as Element,
@@ -183,17 +181,35 @@ function SeqView({ data, onUpdate }: Props) {
 
   const max_res = 1000;
 
+  const [
+    selectedSeqSearchResultIdx,
+    setSelectedSeqSearchResultIdx
+  ] = React.useState(0);
+
   const [seqResults, seqSearch] = utils.useDebouncedQueuedSearch<
     string,
-    Uint32Array | null | typeof TOO_MANY
-  >(async query => {
-    if (query.length >= 3) {
-      const res = await seq.search_seq(query, max_res + 1);
-      return res && res.length < max_res + 1 ? res : TOO_MANY;
-    } else {
-      return Promise.resolve(null);
+    SeqSearchResult[] | null
+  >(
+    query => {
+      if (query.length >= 3) {
+        return seq.search_seq(query, max_res);
+      } else {
+        return Promise.resolve(null);
+      }
+    },
+    () => setSelectedSeqSearchResultIdx(0)
+  );
+
+  // do this imperatively when the selected result changes, because
+  // we we only want to "show" the user where the result is, i.e. we
+  // don't want to control the state of the diagram, just move it once.
+  React.useEffect(() => {
+    if (seqResults && selectedSeqSearchResultIdx < seqResults.length) {
+      diagramRef.current.scrollToPosition(
+        seqResults[selectedSeqSearchResultIdx].start
+      );
     }
-  });
+  }, [selectedSeqSearchResultIdx, seqResults]);
 
   return (
     <div className="template">
@@ -333,11 +349,34 @@ function SeqView({ data, onUpdate }: Props) {
           </li>
           <li>
             {seqResults && (
+              <select
+                className="seq_search_results mono"
+                size={5}
+                value={selectedSeqSearchResultIdx}
+                onMouseDown={e => {
+                  // this event handler stops the list from "jumping" back and forth
+                  // when at item is clicked
+                  // try and find out who's being clicked on
+                  if (e.target && (e.target as any).value) {
+                    setSelectedSeqSearchResultIdx(Number((e.target as any).value));
+                  }
+                }}
+                onChange={e => setSelectedSeqSearchResultIdx(Number(e.target.value))}
+              >
+                {seqResults.map(({ start, fwd }, idx) => (
+                  <option value={idx} key={idx}>
+                    {fwd ? ">> " : "<< "}
+                    {start}
+                  </option>
+                ))}
+              </select>
+            )}
+            {/* {seqResults && (
               <span>
                 {seqResults == TOO_MANY ? `>${max_res}` : seqResults.length}{" "}
                 matches
               </span>
-            )}
+            )} */}
           </li>
         </ul>
       </div>

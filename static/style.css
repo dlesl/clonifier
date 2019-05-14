@@ -879,3 +879,7 @@ button::-moz-focus-inner {
 input {
     vertical-align: -2px;
 }
+
+.seq_search_results {
+    width: 100%;
+}

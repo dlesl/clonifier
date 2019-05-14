@@ -27,7 +27,8 @@ export type DiagramProps = CommonProps & {
 
 /** The handle we receive */
 export interface Handle {
-  scrollTo: (featureIdx: number) => void;
+  scrollToFeature: (featureIdx: number) => void;
+  scrollToPosition: (pos: number) => void;
   getVisibleRange: () => number[];
   /** `null` if not circular */
   getTwelveOClock: () => number | null;
@@ -66,11 +67,14 @@ export const Diagram = React.memo(
     };
     const subRef = React.useRef<DiagramHandle>();
     React.useImperativeHandle(ref, () => ({
-      scrollTo: (featureIdx: number) => {
+      scrollToFeature: (featureIdx: number) => {
         const arrows = data.filter(a => a.featureId === featureIdx);
         const fStart = Math.min(...arrows.map(a => a.start));
         const fEnd = Math.max(...arrows.map(a => a.end));
         subRef.current.scrollTo(fStart, fEnd);
+      },
+      scrollToPosition: (pos: number) => {
+        subRef.current.scrollTo(pos, pos + 1);
       },
       getVisibleRange: () => subRef.current.visibleRange,
       getTwelveOClock: () => subRef.current.twelveOClock

@@ -3,14 +3,14 @@ import { FixedSizeList } from "react-window";
 import { Seq } from "../worker_comms/worker_shims";
 import { readMethodCall } from "../utils/suspense";
 import * as utils from "../utils";
-import { IArrow, intersectsInterval, colourScale } from ".";
+import { IArrow, intersectsInterval, colourScale, DiagramHandle } from ".";
 import { highlightedFeatureColour } from "../seq_view";
 
 export const DetailsDiagram = React.memo(
   React.forwardRef(
     (
       { seq, highlightedFeature }: { seq: Seq; highlightedFeature: number },
-      ref
+      ref: React.Ref<DiagramHandle>
     ) => {
       const { len } = readMethodCall(seq, seq.get_metadata);
       const seqDiv = React.useRef<HTMLDivElement>(null);
@@ -21,13 +21,33 @@ export const DetailsDiagram = React.memo(
       const lineWidth = seqWidth - (lineNumDigits + 4) * monoWidth;
       const lineLen = Math.max(10, Math.floor(lineWidth / monoWidth / 10) * 10);
       const nLines = Math.ceil(len / lineLen);
+      const [visibleRange, setVisibleRange] = React.useState<number[]>([
+        0,
+        len
+      ]);
+      const [twelveOClock, setTwelveOClock] = React.useState(0);
       React.useImperativeHandle(ref, () => ({
-        scrollToFeature: f => {
-          const start = f.start;
+        scrollTo: (start: number, end: number) => {
           const line = Math.floor(start / lineLen);
           seqListRef.current.scrollToItem(line, "center");
-        }
+        },
+        visibleRange,
+        twelveOClock
       }));
+      const onItemsRendered = 
+      () => {};
+      // TODO: Fix this
+      //   ({ visiblestartindex, visiblestopindex }) => {
+      //     setvisiblerange([
+      //       visiblestartindex * linelen,
+      //       math.max(len, visiblestopindex * linelen)
+      //     ]);
+      //     settwelveoclock(
+      //       visiblestartindex +
+      //         (visiblestopindex - visiblestopindex) * linelen +
+      //         math.floor(linelen / 2)
+      //     );
+      //   };
       return (
         <div className="sequence_pane" ref={seqDiv}>
           <FixedSizeList
@@ -38,6 +58,7 @@ export const DetailsDiagram = React.memo(
             itemCount={nLines}
             itemSize={monoHeight + 2 + 10}
             itemData={{ seq, len, lineLen, lineNumDigits, highlightedFeature }}
+            onItemsRendered={onItemsRendered}
           >
             {SeqLineSuspender}
           </FixedSizeList>
