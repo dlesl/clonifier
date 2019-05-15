@@ -179,7 +179,6 @@ export function noWhiteSpace(val: string): ValidationResult {
 
 export function useDebouncedQueuedSearch<Q, R>(
   search: (query: Q) => Promise<R>,
-  onUpdate?: (res: R) => void
 ): [R | null, (query: Q) => void] {
   interface ISearch {
     ab: AbortController;
@@ -204,9 +203,6 @@ export function useDebouncedQueuedSearch<Q, R>(
         search(query).then(res => {
           if (!signal.aborted) {
             setResult(res);
-            if (onUpdate) {
-              onUpdate(res);
-            }
           }
         });
       };

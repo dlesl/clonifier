@@ -181,35 +181,32 @@ function SeqView({ data, onUpdate }: Props) {
 
   const max_res = 1000;
 
-  const [
-    selectedSeqSearchResultIdx,
-    setSelectedSeqSearchResultIdx
-  ] = React.useState(0);
+  const seqSearchSelectRef = React.useRef<HTMLSelectElement>();
 
   const [seqResults, seqSearch] = utils.useDebouncedQueuedSearch<
     string,
     SeqSearchResult[] | null
-  >(
-    query => {
-      if (query.length >= 3) {
-        return seq.search_seq(query, max_res);
-      } else {
-        return Promise.resolve(null);
-      }
-    },
-    () => setSelectedSeqSearchResultIdx(0)
-  );
-
-  // do this imperatively when the selected result changes, because
-  // we we only want to "show" the user where the result is, i.e. we
-  // don't want to control the state of the diagram, just move it once.
-  React.useEffect(() => {
-    if (seqResults && selectedSeqSearchResultIdx < seqResults.length) {
-      diagramRef.current.scrollToPosition(
-        seqResults[selectedSeqSearchResultIdx].start
-      );
+  >(query => {
+    if (query.length >= 3) {
+      return seq.search_seq(query, max_res);
+    } else {
+      return Promise.resolve(null);
     }
-  }, [selectedSeqSearchResultIdx, seqResults]);
+  });
+
+  const scrollToSeqSearchResult = (idx: number) => {
+    if (seqResults && idx < seqResults.length) {
+      diagramRef.current.scrollToPosition(seqResults[idx].start);
+    }
+  };
+
+  // select the first match whenever a new search result arrives
+  React.useEffect(() => {
+    if (seqResults) {
+      seqSearchSelectRef.current.value = "0";
+      scrollToSeqSearchResult(0);
+    }
+  }, [seqResults]);
 
   return (
     <div className="template">
@@ -351,17 +348,14 @@ function SeqView({ data, onUpdate }: Props) {
             {seqResults && (
               <select
                 className="seq_search_results mono"
+                ref={seqSearchSelectRef}
                 size={5}
-                value={selectedSeqSearchResultIdx}
-                onMouseDown={e => {
-                  // this event handler stops the list from "jumping" back and forth
-                  // when at item is clicked
-                  // try and find out who's being clicked on
-                  if (e.target && (e.target as any).value) {
-                    setSelectedSeqSearchResultIdx(Number((e.target as any).value));
+                onChange={e => scrollToSeqSearchResult(Number(e.target.value))}
+                onClick={e => {
+                  if (e.target && e.target instanceof HTMLOptionElement) {
+                    scrollToSeqSearchResult(Number(e.target.value));
                   }
                 }}
-                onChange={e => setSelectedSeqSearchResultIdx(Number(e.target.value))}
               >
                 {seqResults.map(({ start, fwd }, idx) => (
                   <option value={idx} key={idx}>
@@ -371,12 +365,16 @@ function SeqView({ data, onUpdate }: Props) {
                 ))}
               </select>
             )}
-            {/* {seqResults && (
+          </li>
+          <li>
+            {seqResults && (
               <span>
-                {seqResults == TOO_MANY ? `>${max_res}` : seqResults.length}{" "}
+                {seqResults.length === max_res + 1
+                  ? `>${max_res}`
+                  : seqResults.length}{" "}
                 matches
               </span>
-            )} */}
+            )}
           </li>
         </ul>
       </div>

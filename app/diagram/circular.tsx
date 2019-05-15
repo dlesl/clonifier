@@ -62,8 +62,8 @@ export default React.forwardRef(
         setRotation(mod(-(aEnd + aStart) / 2, PI2));
         // console.log(fStart, fEnd, aStart, aEnd);
       },
-      visibleRange,
-      twelveOClock: mod(Math.floor((-rotation / PI2) * len), len) + 1
+      getVisibleRange: () => visibleRange,
+      getTwelveOClock: () => mod(Math.floor((-rotation / PI2) * len), len) + 1
     }));
     const circleYTranslation = radius * (scale - 1 / scale);
     const x = Math.floor(width / 2);

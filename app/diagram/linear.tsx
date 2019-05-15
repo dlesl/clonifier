@@ -58,11 +58,11 @@ export default React.forwardRef(
             .scale(len / (fEnd - fStart))
         );
       },
-      visibleRange: [
+      getVisibleRange: () => [
         Math.floor(scale.invert(padding)),
         Math.ceil(scale.invert(padding + lineLength))
       ],
-      twelveOClock: null
+      getTwelveOClock: () => null
     }));
     const left = scale.invert(0);
     const right = scale.invert(width);

@@ -37,9 +37,9 @@ export interface Handle {
 /** The handle we pass on */
 export interface DiagramHandle {
   scrollTo: (start: number, end: number) => void;
-  visibleRange: number[];
+  getVisibleRange: () => number[];
   /** `null` if not circular */
-  twelveOClock: number | null;
+  getTwelveOClock: () => number | null;
 }
 
 /** This Component renders the appropriate diagram based on
@@ -76,8 +76,8 @@ export const Diagram = React.memo(
       scrollToPosition: (pos: number) => {
         subRef.current.scrollTo(pos, pos + 1);
       },
-      getVisibleRange: () => subRef.current.visibleRange,
-      getTwelveOClock: () => subRef.current.twelveOClock
+      getVisibleRange: () => subRef.current.getVisibleRange(),
+      getTwelveOClock: () => subRef.current.getTwelveOClock()
     }));
     return <DiagramType ref={subRef} {...diagramProps} />;
   })

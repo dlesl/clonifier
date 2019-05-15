@@ -21,33 +21,27 @@ export const DetailsDiagram = React.memo(
       const lineWidth = seqWidth - (lineNumDigits + 4) * monoWidth;
       const lineLen = Math.max(10, Math.floor(lineWidth / monoWidth / 10) * 10);
       const nLines = Math.ceil(len / lineLen);
-      const [visibleRange, setVisibleRange] = React.useState<number[]>([
-        0,
-        len
-      ]);
-      const [twelveOClock, setTwelveOClock] = React.useState(0);
+      const visibleRange = React.useRef<number[]>([0, len]);
+      const twelveOClock = React.useRef(0);
       React.useImperativeHandle(ref, () => ({
         scrollTo: (start: number, end: number) => {
           const line = Math.floor(start / lineLen);
           seqListRef.current.scrollToItem(line, "center");
         },
-        visibleRange,
-        twelveOClock
+        getVisibleRange: () => visibleRange.current,
+        getTwelveOClock: () => twelveOClock.current
       }));
-      const onItemsRendered = 
-      () => {};
-      // TODO: Fix this
-      //   ({ visiblestartindex, visiblestopindex }) => {
-      //     setvisiblerange([
-      //       visiblestartindex * linelen,
-      //       math.max(len, visiblestopindex * linelen)
-      //     ]);
-      //     settwelveoclock(
-      //       visiblestartindex +
-      //         (visiblestopindex - visiblestopindex) * linelen +
-      //         math.floor(linelen / 2)
-      //     );
-      //   };
+      const onItemsRendered = ({ visibleStartIndex, visibleStopIndex }) => {
+        visibleRange.current = [
+          visibleStartIndex * lineLen,
+          Math.min(len, visibleStopIndex * lineLen + lineLen)
+        ];
+        twelveOClock.current = Math.floor(
+          (visibleStartIndex + (visibleStopIndex - visibleStartIndex) / 2) *
+            lineLen +
+            lineLen / 2
+        );
+      };
       return (
         <div className="sequence_pane" ref={seqDiv}>
           <FixedSizeList
