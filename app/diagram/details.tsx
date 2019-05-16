@@ -141,7 +141,7 @@ function SeqLine({
               <line
                 key={idx}
                 x1={Math.max(a.start, start) - start}
-                x2={Math.min(a.end + 1, end) - start}
+                x2={Math.min(a.end, end) - start}
                 y1={y}
                 y2={y}
                 stroke={colour}
