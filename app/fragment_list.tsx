@@ -45,9 +45,13 @@ export const FragmentList = React.memo(function FragmentList({
     setFragments(fragments.removeSelected());
   };
 
+  const openFragment = (f: Fragment) => {
+    appContext.addTab(new SeqTab(loadFragment(f)));
+  };
+
   const openSelectedFragments = () => {
     for (const f of fragments.checkedRows) {
-      appContext.addTab(new SeqTab(loadFragment(f)));
+      openFragment(f);
     }
   };
   const selection = fragments.checkedRows.length !== 0;
@@ -70,6 +74,7 @@ export const FragmentList = React.memo(function FragmentList({
           checkboxes={true}
           filter={filter}
           onUpdate={setFragments}
+          onRowClicked={openFragment}
         />
       </div>
       <QuickSelect data={fragments.rows} setFilter={setFilter} />
