@@ -168,91 +168,91 @@ function Settings({
   };
   const run = () => onRun({ minFp, minLen, maxLen });
   return (
-    <div className="pcr_settings">
-      <p>
-        <label>
+    <div className="template_left recessed_light">
+      <ul>
+        <li>
+          <label>Min 3' primer homology</label>
           <input
             type="number"
             value={minFp}
             min="1"
             max="63"
             onChange={e => updateSetting("minFp", e.target.value)}
+            className="recessed_light"
           />
-          Min 3' primer homology
-        </label>
-      </p>
-      <p>
-        <label>
+        </li>
+        <li>
+          <label>Min length</label>
           <input
             type="number"
             value={minLen}
             min="1"
             onChange={e => updateSetting("minLen", e.target.value)}
+            className="recessed_light"
           />
-          Min length
-        </label>
-      </p>
-      <p>
-        <label>
+        </li>
+        <li>
+          <label>Max length</label>
           <input
             type="number"
             value={maxLen}
             min="1"
             onChange={e => updateSetting("maxLen", e.target.value)}
+            className="recessed_light"
           />
-          Max length
-        </label>
-      </p>
-      <p>
-        <PromiseButton
-          disabled={!dirty && !running}
-          onClick={running ? onCancel : run}
-        >
-          {running ? "Cancel" : "Run"}
-        </PromiseButton>
-      </p>
-      <p>
-        <PromiseButton
-          disabled={running || dirty || selectedMatches.length === 0}
-          onClick={async () => {
-            let r = await resultPromise;
-            let s = r.annotate_matches(selectedMatches);
-            appContext.addTab(new SeqTab(s));
-            return s;
-          }}
-        >
-          Annotate primer binding
-        </PromiseButton>
-      </p>
-      <p>
-        <PromiseButton
-          disabled={running || dirty || selectedProducts.length === 0}
-          onClick={async () => {
-            let r = await resultPromise;
-            let s = r.annotate_products(selectedProducts);
-            appContext.addTab(new SeqTab(s));
-            return s;
-          }}
-        >
-          Annotate PCR products
-        </PromiseButton>
-      </p>
-      <p>
-        <PromiseButton
-          disabled={running || dirty || selectedProducts.length === 0}
-          onClick={() =>
-            Promise.all(
-              selectedProducts.map(idx =>
-                resultPromise.then(r =>
-                  r.extract_product(idx).then(p => appContext.saveFragment(p))
+        </li>
+        <hr/>
+        <li>
+          <PromiseButton
+            disabled={!dirty && !running}
+            onClick={running ? onCancel : run}
+          >
+            {running ? "Cancel" : "Run"}
+          </PromiseButton>
+        </li>
+        <li>
+          <PromiseButton
+            disabled={running || dirty || selectedMatches.length === 0}
+            onClick={async () => {
+              let r = await resultPromise;
+              let s = r.annotate_matches(selectedMatches);
+              appContext.addTab(new SeqTab(s));
+              return s;
+            }}
+          >
+            Annotate primer binding
+          </PromiseButton>
+        </li>
+        <li>
+          <PromiseButton
+            disabled={running || dirty || selectedProducts.length === 0}
+            onClick={async () => {
+              let r = await resultPromise;
+              let s = r.annotate_products(selectedProducts);
+              appContext.addTab(new SeqTab(s));
+              return s;
+            }}
+          >
+            Annotate PCR products
+          </PromiseButton>
+        </li>
+        <li>
+          <PromiseButton
+            disabled={running || dirty || selectedProducts.length === 0}
+            onClick={() =>
+              Promise.all(
+                selectedProducts.map(idx =>
+                  resultPromise.then(r =>
+                    r.extract_product(idx).then(p => appContext.saveFragment(p))
+                  )
                 )
               )
-            )
-          }
-        >
-          Save PCR products
-        </PromiseButton>
-      </p>
+            }
+          >
+            Save PCR products
+          </PromiseButton>
+        </li>
+      </ul>
     </div>
   );
 }
