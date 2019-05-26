@@ -3,13 +3,19 @@ import { FixedSizeList } from "react-window";
 import { Seq } from "../worker_comms/worker_shims";
 import { readMethodCall } from "../utils/suspense";
 import * as utils from "../utils";
-import { IArrow, intersectsInterval, colourScale, DiagramHandle } from ".";
+import {
+  IArrow,
+  intersectsInterval,
+  colourScale,
+  DiagramHandle,
+  DiagramProps
+} from ".";
 import { highlightedFeatureColour } from "../seq_view";
 
 export const DetailsDiagram = React.memo(
   React.forwardRef(
     (
-      { seq, highlightedFeature }: { seq: Seq; highlightedFeature: number },
+      { seq, highlightedFeature, highlightedRanges }: DiagramProps,
       ref: React.Ref<DiagramHandle>
     ) => {
       const { len } = readMethodCall(seq, seq.get_metadata);
@@ -51,7 +57,14 @@ export const DetailsDiagram = React.memo(
             overScanCount={10} // TODO: cache the seq data instead?
             itemCount={nLines}
             itemSize={monoHeight + 2 + 10}
-            itemData={{ seq, len, lineLen, lineNumDigits, highlightedFeature }}
+            itemData={{
+              seq,
+              len,
+              lineLen,
+              lineNumDigits,
+              highlightedFeature,
+              highlightedRanges
+            }}
             onItemsRendered={onItemsRendered}
           >
             {SeqLineSuspender}
@@ -69,7 +82,14 @@ function SeqLineSuspender(props) {
   );
 }
 function SeqLine({
-  data: { seq, len, lineLen, lineNumDigits, highlightedFeature },
+  data: {
+    seq,
+    len,
+    lineLen,
+    lineNumDigits,
+    highlightedFeature,
+    highlightedRanges
+  },
   index,
   style
 }) {
@@ -89,6 +109,12 @@ function SeqLine({
     intersectsInterval(a.start, a.end, start, end)
   );
   const highlights = overlaps.filter(a => a.featureId === highlightedFeature);
+  if (highlightedRanges) {
+    const ranges = highlightedRanges.filter(r =>
+      intersectsInterval(r.start, r.end, start, end)
+    );
+    highlights.push(...ranges);
+  }
   highlights.sort((a, b) => a.start - b.start);
   const maxRing = React.useMemo(() => Math.max(...dd.map(a => a.ring)) + 1, [
     dd
@@ -106,7 +132,7 @@ function SeqLine({
             {highlights.map((a, idx) => (
               <React.Fragment key={idx}>
                 <span>
-                  {" " /*&nbsp;*/
+                  {'\xa0'
                     .repeat(
                       Math.max(
                         0,
@@ -117,7 +143,7 @@ function SeqLine({
                     )}
                 </span>
                 <span style={{ background: highlightedFeatureColour }}>
-                  {" " /*&nbsp;*/
+                  {'\xa0'
                     .repeat(
                       Math.min(a.end + 1, end) - Math.max(a.start, start)
                     )}

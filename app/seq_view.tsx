@@ -12,7 +12,8 @@ import {
   IArrow,
   intersectsInterval,
   colourScale,
-  Handle
+  Handle,
+  HighlightedRange
 } from "./diagram";
 import { makeDialog, promptDialog } from "./utils/dialogs";
 import { downloadData } from "./utils/io";
@@ -145,7 +146,7 @@ function SeqView({ data, onUpdate }: Props) {
     resizeHandler.install(
       featuresPaneRef.current as Element,
       null,
-      newHeight => {}
+      newHeight => { }
     );
     return () => resizeHandler.uninstall();
   }, []);
@@ -194,14 +195,18 @@ function SeqView({ data, onUpdate }: Props) {
     }
   });
 
+  const [highlightedRange, setHighlightedRange] = React.useState<HighlightedRange>(null);
+
   const scrollToSeqSearchResult = (idx: number) => {
     if (seqResults && idx < seqResults.length) {
       diagramRef.current.scrollToPosition(seqResults[idx].start);
+      setHighlightedRange({start: seqResults[idx].start, end: seqResults[idx].end - 1});
     }
   };
 
   // select the first match whenever a new search result arrives
   React.useEffect(() => {
+    setHighlightedRange(null);
     if (seqResults) {
       seqSearchSelectRef.current.value = "0";
       scrollToSeqSearchResult(0);
@@ -388,7 +393,7 @@ function SeqView({ data, onUpdate }: Props) {
             seq={seq}
             filter={filter}
             onFeatureClick={onFeatureClick}
-            onFeatureHover={(f, idx) => {} /*setHoveredFeatureIdx(idx)*/}
+            onFeatureHover={(f, idx) => { } /*setHoveredFeatureIdx(idx)*/}
             highlightedFeature={hoveredFeatureIdx}
           />
         </div>
@@ -399,6 +404,7 @@ function SeqView({ data, onUpdate }: Props) {
           ref={diagramRef}
           seq={seq}
           highlightedFeature={hoveredFeatureIdx}
+          highlightedRanges={highlightedRange ? [highlightedRange] : null}
           hidden={false}
           showDetails={showDetails}
         />

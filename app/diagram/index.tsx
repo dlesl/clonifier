@@ -6,10 +6,16 @@ import LinearDiagram from "./linear";
 import CircularDiagram from "./circular";
 import { DetailsDiagram } from "./details";
 
+export interface HighlightedRange {
+  start: number;
+  end: number;
+}
+
 /** "base" props */
 export interface CommonProps {
   hidden: boolean;
-  highlightedFeature: number;
+  highlightedFeature?: number;
+  highlightedRanges?: HighlightedRange[];
   seq: Seq;
 }
 
