@@ -9,7 +9,7 @@ install:
 
 script:
   - npm install
-  - npm run build
+  - travis_wait 40 npm run build
 
 cache:
   directories:
