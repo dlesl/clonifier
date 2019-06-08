@@ -77,7 +77,7 @@ class App extends React.PureComponent<{}, State> {
     this.fileOpenRef = React.createRef();
     this.fileImportRef = React.createRef();
     const logMessages = [];
-    const logMessageListeners = new Set();
+    const logMessageListeners = new Set<Function>();
     appContext = {
       updateTab: this.updateTab,
       addTab: this.addTab,

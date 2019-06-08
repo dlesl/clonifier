@@ -16,7 +16,7 @@ export function QuickSelect({ data, setFilter }: Props) {
       setFilter(null);
     } else {
       const qCaseI = new RegExp(escapeRegExp(q), "i");
-      const res = new Set();
+      const res = new Set<number>();
       data.forEach((v, idx) => {
         if (qCaseI.test(v.name)) {
           res.add(idx);
