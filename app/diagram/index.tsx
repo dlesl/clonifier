@@ -6,6 +6,8 @@ import LinearDiagram from "./linear";
 import CircularDiagram from "./circular";
 import { DetailsDiagram } from "./details";
 
+export const highlightedFeatureColour = "yellow";
+
 export interface HighlightedRange {
   start: number;
   end: number;
@@ -16,6 +18,7 @@ export interface CommonProps {
   hidden: boolean;
   highlightedFeature?: number;
   highlightedRanges?: HighlightedRange[];
+  noCanvas?: boolean;
   seq: Seq;
 }
 

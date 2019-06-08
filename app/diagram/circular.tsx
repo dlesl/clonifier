@@ -23,13 +23,7 @@ let render = 0;
 
 export default React.forwardRef(
   (
-    {
-      data,
-      name,
-      len,
-      hidden,
-      highlightedFeature /*, setVisibleInterval*/
-    }: DiagramProps,
+    { data, name, len, hidden, highlightedFeature, noCanvas }: DiagramProps,
     ref: React.Ref<DiagramHandle>
   ) => {
     console.log(render++);
@@ -160,12 +154,18 @@ export default React.forwardRef(
       }
     }
     const minLenSvg = (10 / radius / scale / PI2) * len; // 10 px
-    const longEnough =
-      visible.length < maxSvgElements
-        ? d => true
-        : d => d.end - d.start > minLenSvg;
-    const svgArrowData: IArrow[] = visible.filter(longEnough);
-    const canvasArrowData: IArrow[] = visible.filter(d => !longEnough(d));
+    let svgArrowData: IArrow[], canvasArrowData: IArrow[];
+    if (!noCanvas) {
+      const longEnough =
+        visible.length < maxSvgElements
+          ? d => true
+          : d => d.end - d.start > minLenSvg;
+      svgArrowData = visible.filter(longEnough);
+      canvasArrowData = visible.filter(d => !longEnough(d));
+    } else {
+      svgArrowData = visible;
+      canvasArrowData = [];
+    }
     // We use `useLayoutEffect` instead of `useEffect` to ensure the canvas is always
     // in sync with the svg while dragging.
     React.useLayoutEffect(() => {

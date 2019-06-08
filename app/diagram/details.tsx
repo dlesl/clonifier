@@ -8,9 +8,9 @@ import {
   intersectsInterval,
   colourScale,
   DiagramHandle,
-  DiagramProps
+  DiagramProps,
+  highlightedFeatureColour
 } from ".";
-import { highlightedFeatureColour } from "../seq_view";
 
 export const DetailsDiagram = React.memo(
   React.forwardRef(

@@ -13,9 +13,9 @@ import {
   arrowLength,
   textPadding,
   DiagramProps,
-  DiagramHandle
+  DiagramHandle,
+  highlightedFeatureColour
 } from ".";
-import { highlightedFeatureColour } from "../seq_view";
 
 export default React.forwardRef(
   (

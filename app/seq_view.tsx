@@ -20,7 +20,6 @@ import { downloadData } from "./utils/io";
 
 type Feature = any; // TODO update
 
-export const highlightedFeatureColour = "yellow";
 
 function Button({
   data,
@@ -444,9 +443,9 @@ const Features = React.memo(
 
     const getBackgroundColour = React.useCallback(
       (row, idx) =>
-        idx === highlightedFeature
-          ? highlightedFeatureColour
-          : getFeatureColour(row, idx),
+        // idx === highlightedFeature
+        //   ? highlightedFeatureColour : 
+          getFeatureColour(row, idx),
       [getFeatureColour, highlightedFeature]
     );
 

@@ -12,7 +12,7 @@ export class ErrorBoundary extends React.PureComponent {
   public componentDidCatch(error, info) {}
   public render() {
     if (this.state.error) {
-      return <p>{`Error: ${this.state.error}`}</p>;
+      return <p>{`${this.state.error}`}</p>;
     }
     return this.props.children;
   }
