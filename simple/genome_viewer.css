@@ -1,9 +1,17 @@
+#root {
+    display: flex;
+    flex-direction: row;
+}
+
 .left {
-  position: absolute;
   z-index: 1;
+  height: 100vh;
+  border-right: solid 1px black;
+  padding: 1em 1em;
 }
 
 .viewer {
+  flex: 1;
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -18,4 +26,8 @@
 
 .diagram {
   flex: 1;
+}
+
+.btn {
+    margin-bottom: 10px;
 }

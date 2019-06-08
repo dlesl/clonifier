@@ -36,6 +36,11 @@ function App() {
         }
       })();
       setSeqPromise(newSeqPromise);
+      if (seqPromise) {
+        setTimeout(async () => {
+          (await seqPromise).free();
+        }, 0);
+      }
     }
     e.target.value = "";
   };
@@ -46,17 +51,31 @@ function App() {
     // has been re-rendered
     if (!noCanvas) setNoCanvas(true);
     setTimeout(() => {
-      const el = document.querySelector(".diagram svg");
+      let el = document.querySelector(".diagram svg");
+      const { width, height } = el.getBoundingClientRect();
+      // some standalone SVG viewers don't support rgba colours, the spec says
+      // we need to use `fill-opacity` instead.
+      el = el.cloneNode(true) as Element;
+      for (const child of el.getElementsByTagName("*")) {
+        const fill = child.getAttribute("fill");
+        if (fill) {
+          const match = fill.match(/^rgba\((.+),\s?([0-9\.]+)\)/);
+          if (match) {
+            child.setAttribute("fill", `rgb(${match[1]})`);
+            child.setAttribute("fill-opacity", match[2]);
+          }
+        }
+      }
       const svg = `<?xml version="1.0" encoding="UTF-8" ?>
                     <svg 
                       version="1.1" 
                       baseProfile="full" 
-                      width="${el.getBoundingClientRect().width}"
-                      height="${el.getBoundingClientRect().height}"
+                      width="${width}"
+                      height="${height}"
                       xmlns="http://www.w3.org/2000/svg"
                       xmlns:xlink="http://www.w3.org/1999/xlink">
                         ${el.innerHTML}
-                      </svg>`;
+                    </svg>`;
       const te = new TextEncoder();
       const ab = te.encode(svg).buffer;
       downloadData(ab, "diagram.svg", "image/svg+xml");
@@ -77,14 +96,17 @@ function App() {
         />
         <p>
           <button
-            className="btn btn-default"
+            className="btn btn-default btn-block btn-default"
             onClick={() => fileRef.current.click()}
           >
             Load template from file
           </button>
+          <p>Supported formats: Genbank (.gb, .ape)</p>
         </p>
-        <p>
-          <label htmlFor="no_canvas">SVG only (slower)</label>
+        <div className="card">
+          <header className="card-header">
+            Display settings
+          </header>
           <input
             type="checkbox"
             name="no_canvas"
@@ -92,9 +114,11 @@ function App() {
             id="no_canvas"
             onChange={e => setNoCanvas(e.target.checked)}
           />
-        </p>
+          <label htmlFor="no_canvas">SVG only (slower)</label>
+        </div>
+        <br/>
         <p>
-          <button className="btn btn-default" onClick={downloadSvg}>
+          <button className="btn btn-default btn-block" onClick={downloadSvg}>
             Download SVG
           </button>
         </p>
