@@ -1,9 +1,10 @@
 use bio::data_structures::interval_tree::IntervalTree;
 use gb_io::seq::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::iter::FromIterator;
 use wasm_bindgen::prelude::*;
 
-pub fn get_diagram_data(t: &Seq) -> Box<[JsValue]> {
+pub fn get_diagram_data(t: &Seq, subset: Option<Vec<usize>>) -> Box<[JsValue]> {
     const DIRECTIONAL: &[FeatureKind] = &[feature_kind!("CDS"), feature_kind!("gene")];
     // This can't be done in a closure because it's recursive
     fn range_finder<'a>(p: &'a Location, closure: &mut impl FnMut(i64, i64, bool), fwd: bool) {
@@ -39,7 +40,13 @@ pub fn get_diagram_data(t: &Seq) -> Box<[JsValue]> {
     let mut arrows = Vec::<ArrowIntervals>::new();
     let mut colour_map = HashMap::new();
     let mut colour = -1;
+    let filter: Option<HashSet<usize>> = subset.map(|s| HashSet::from_iter(s.into_iter()));
     for (idx, f) in t.features.iter().enumerate() {
+        if let Some(filter) = &filter {
+            if filter.get(&idx).is_none() {
+                continue;
+            }
+        }
         let c = *colour_map.entry(&f.kind).or_insert_with(|| {
             colour += 1;
             colour

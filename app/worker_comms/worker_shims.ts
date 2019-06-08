@@ -1,5 +1,6 @@
 import { workerCall, workerRequest, workerDeleteObj } from ".";
 import { Request, ArgType } from "../../worker/shared";
+import { IArrow } from "../diagram";
 
 /** This is a class which all proxied Rust objects (which live in the
  *  worker, and whose lifetimes must be manually managed)
@@ -181,8 +182,18 @@ export class Seq extends RemoteObj {
     return this.callMethod("set_circular", "obj", [arg0], ["val"], []);
   }
 
-  get_diagram_data(): Promise<any[]> {
+  get_diagram_data(): Promise<IArrow[]> {
     return this.callMethod("get_diagram_data", "val", [], [], []);
+  }
+
+  get_diagram_data_filtered(idxes: number[]): Promise<IArrow[]> {
+    return this.callMethod(
+      "get_diagram_data_filtered",
+      "val",
+      [idxes],
+      ["val"],
+      []
+    );
   }
 
   revcomp(): Promise<Seq> {
@@ -215,6 +226,15 @@ export class Seq extends RemoteObj {
   get_feature_qualifiers(arg0: number): Promise<any> {
     return this.callMethod(
       "get_feature_qualifiers",
+      "val",
+      [arg0],
+      ["val"],
+      []
+    );
+  }
+  get_feature_qualifier(arg0: string): Promise<string[]> {
+    return this.callMethod(
+      "get_feature_qualifier",
       "val",
       [arg0],
       ["val"],

@@ -23,7 +23,16 @@ let render = 0;
 
 export default React.forwardRef(
   (
-    { data, name, len, hidden, highlightedFeature, noCanvas }: DiagramProps,
+    {
+      data,
+      name,
+      len,
+      hidden,
+      highlightedFeature,
+      noCanvas,
+      overrideFeatureColour,
+      defaultColour
+    }: DiagramProps,
     ref: React.Ref<DiagramHandle>
   ) => {
     console.log(render++);
@@ -166,6 +175,16 @@ export default React.forwardRef(
       svgArrowData = visible;
       canvasArrowData = [];
     }
+
+    const getArrowColour = a => {
+      if (overrideFeatureColour) {
+        const override = overrideFeatureColour.get(a.featureId);
+        return override || defaultColour || colourScale(a.colour);
+      } else {
+        return colourScale(a.colour);
+      }
+    };
+
     // We use `useLayoutEffect` instead of `useEffect` to ensure the canvas is always
     // in sync with the svg while dragging.
     React.useLayoutEffect(() => {
@@ -187,17 +206,29 @@ export default React.forwardRef(
       }
       context.stroke();
       context.rotate(rotation);
-      canvasArrowData.sort((a, b) => b.colour - a.colour);
-      let lastColour = 0;
-      for (const a of canvasArrowData) {
-        if (a.colour !== lastColour) {
-          lastColour = a.colour;
-          context.fillStyle = colourScale(lastColour);
-        }
+
+      const canvasDrawArrow = a => {
         context.beginPath();
         drawArrow(a, len, limits, radius, scale, rotation, context);
         context.closePath();
         context.fill();
+      };
+
+      if (overrideFeatureColour) {
+        for (const a of canvasArrowData) {
+          context.fillStyle = getArrowColour(a);
+          canvasDrawArrow(a);
+        }
+      } else {
+        canvasArrowData.sort((a, b) => b.colour - a.colour);
+        let lastColour = 0;
+        for (const a of canvasArrowData) {
+          if (a.colour !== lastColour) {
+            lastColour = a.colour;
+            context.fillStyle = colourScale(lastColour);
+          }
+          canvasDrawArrow(a);
+        }
       }
     });
     const svgArrows = svgArrowData.map(a => {
@@ -233,7 +264,7 @@ export default React.forwardRef(
               {svgArrows.map(a => (
                 <g key={a.arrow.arrowId}>
                   <path
-                    fill={colourScale(a.arrow.colour)}
+                    fill={getArrowColour(a.arrow)}
                     d={a.arrowPath.toString()}
                   />
                 </g>

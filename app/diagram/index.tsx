@@ -19,12 +19,15 @@ export interface CommonProps {
   highlightedFeature?: number;
   highlightedRanges?: HighlightedRange[];
   noCanvas?: boolean;
+  overrideFeatureColour?: Map<number, string>;
+  defaultColour?: string;
   seq: Seq;
 }
 
 /** extra props we are given */
 export type Props = CommonProps & {
   showDetails: boolean;
+  filterFeatures?: number[];
 };
 
 /** extra props a "Diagram" receives */
@@ -59,9 +62,11 @@ export interface DiagramHandle {
  */
 export const Diagram = React.memo(
   React.forwardRef((props: Props, ref: React.Ref<Handle>) => {
-    const { seq, showDetails } = props;
+    const { seq, showDetails, filterFeatures } = props;
     const { name, len, circular } = readMethodCall(seq, seq.get_metadata);
-    const data = readMethodCall(seq, seq.get_diagram_data);
+    const data = filterFeatures
+      ? readMethodCall(seq, seq.get_diagram_data_filtered, filterFeatures)
+      : readMethodCall(seq, seq.get_diagram_data);
     let DiagramType: any;
     if (showDetails) {
       DiagramType = DetailsDiagram;

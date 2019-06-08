@@ -20,6 +20,7 @@ select {
   color: unset;
   border-bottom: unset;
   background-color: unset;
+  z-index: 1;
 }
 .fork_me:hover {
   background-color: unset;

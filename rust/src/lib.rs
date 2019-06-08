@@ -136,7 +136,10 @@ impl JsSeq {
         JsSeq(Rc::new(res))
     }
     pub fn get_diagram_data(&self) -> Box<[JsValue]> {
-        crate::seq_diagram::get_diagram_data(&self.0)
+        crate::seq_diagram::get_diagram_data(&self.0, None)
+    }
+    pub fn get_diagram_data_filtered(&self, subset: Vec<usize>) -> Box<[JsValue]> {
+        crate::seq_diagram::get_diagram_data(&self.0, Some(subset))
     }
     pub fn revcomp(&self) -> JsSeq {
         JsSeq(Rc::new(self.0.revcomp()))
@@ -180,6 +183,14 @@ impl JsSeq {
     }
     pub fn get_feature_qualifiers(&self, idx: usize) -> JsValue {
         JsValue::from_serde(&self.0.features[idx].qualifiers).unwrap()
+    }
+
+    pub fn get_feature_qualifier(&self, qualifier: &str) -> Box<[JsValue]> {
+        let key = QualifierKey::from(qualifier);
+        self.0.features.iter().map(|f| {
+            let val = f.qualifier_values(key.clone()).next().unwrap_or("");
+            JsValue::from(val)
+        }).collect::<Vec<_>>().into_boxed_slice() 
     }
 
     pub fn search_features(

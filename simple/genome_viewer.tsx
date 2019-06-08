@@ -1,15 +1,17 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { readFileBinary, downloadData } from "../app/utils/io";
+import { readFileBinary, downloadData, fetchBinary, fetchText } from "../app/utils/io";
 import { setErrorHandler, setLogHandler } from "../app/worker_comms";
-import { parse_gb, Seq } from "../app/worker_comms/worker_shims";
+import { parse_gb, Seq, parse_bin } from "../app/worker_comms/worker_shims";
 import { ForkMe } from "./common";
 import { Diagram } from "../app/diagram";
 import "hack";
 import "./common.css";
 import "./genome_viewer.css";
-import { readCachedPromise } from "../app/utils/suspense";
+import { readCachedPromise, readMethodCall } from "../app/utils/suspense";
 import { ErrorBoundary } from "../app/components/error_boundary";
+import { standardTemplates } from "../templates";
+import { number } from "prop-types";
 
 setErrorHandler(alert);
 setLogHandler(() => {}); // gets logged to console anyway
@@ -19,6 +21,17 @@ function App() {
   const lastSeqPromise = React.useRef<Promise<Seq>>(null);
   const [seqPromise, setSeqPromise] = React.useState<Promise<Seq>>(null);
   const [noCanvas, setNoCanvas] = React.useState<boolean>(false);
+  const [geneKey, setGeneKey] = React.useState("locus_tag");
+  const [colourData, setColourData] = React.useState("");
+  const [matchesOnly, setMatchesOnly] = React.useState<boolean>(false);
+
+  const freeSeq = () => {
+    if (seqPromise) {
+      setTimeout(async () => {
+        (await seqPromise).free();
+      }, 0);
+    }
+  };
 
   const onLoadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -36,14 +49,32 @@ function App() {
         }
       })();
       setSeqPromise(newSeqPromise);
-      if (seqPromise) {
-        setTimeout(async () => {
-          (await seqPromise).free();
-        }, 0);
-      }
+      freeSeq();
     }
     e.target.value = "";
   };
+
+  const onLoadExample = (basename: string) => {
+    const newSeqPromise = (async () => {
+      try {
+        const data = await fetchBinary(`${basename}.bin`);
+        return await parse_bin(data);
+      } catch (e) {
+        alert(e.toString());
+        setSeqPromise(null);
+      }
+    })();
+    setSeqPromise(newSeqPromise);
+    freeSeq();
+  };
+
+  const loadSampleExprData = async (e) => {
+    e.preventDefault();
+    onLoadExample("na1000");
+    const text = await fetchText("schramm_data.txt");
+    setColourData(text);
+    setGeneKey("locus_tag");
+  }
 
   const downloadSvg = () => {
     // this is a hack and might not work in future React versions ;)
@@ -79,6 +110,7 @@ function App() {
       const te = new TextEncoder();
       const ab = te.encode(svg).buffer;
       downloadData(ab, "diagram.svg", "image/svg+xml");
+      if (!noCanvas) setNoCanvas(false); // restore setting
     }, 0);
   };
 
@@ -103,10 +135,24 @@ function App() {
           </button>
           <p>Supported formats: Genbank (.gb, .ape)</p>
         </p>
+        <select
+          onChange={e => {
+            if (e.target.value !== "default") {
+              onLoadExample(e.target.value);
+              e.target.value = "default";
+            }
+          }}
+        >
+          <option value="default">Load an example template...</option>
+          {standardTemplates.map(({ name, basename }) => (
+            <option key={basename} value={basename}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <p />
         <div className="card">
-          <header className="card-header">
-            Display settings
-          </header>
+          <header className="card-header">Display settings</header>
           <input
             type="checkbox"
             name="no_canvas"
@@ -114,16 +160,64 @@ function App() {
             id="no_canvas"
             onChange={e => setNoCanvas(e.target.checked)}
           />
-          <label htmlFor="no_canvas">SVG only (slower)</label>
+          <label htmlFor="no_canvas"> SVG only (slower)</label>
         </div>
-        <br/>
+        <br />
         <p>
           <button className="btn btn-default btn-block" onClick={downloadSvg}>
             Download SVG
           </button>
         </p>
+        <div className="card">
+          <header className="card-header">Custom colours</header>
+          <p>
+            Apply custom colours to genes, for example to visualise expression
+            data
+          </p>
+          <fieldset className="form-group">
+            <label htmlFor="key" className="form-control">
+              Key to select:
+            </label>
+            <input
+              className="form-control"
+              value={geneKey}
+              id="key"
+              onChange={e => setGeneKey(e.target.value)}
+            />
+          </fieldset>
+          <fieldset className="form-group form-textarea">
+            <label htmlFor="data">Data:</label>
+            <textarea
+              id="data"
+              rows={5}
+              className="form-control"
+              value={colourData}
+              onChange={e => setColourData(e.target.value)}
+            />
+          </fieldset>
+          Data format:
+          <br />
+          <code>key colour</code>
+          <br />
+          Colour format:
+          <br/>
+          <code>#rrggbb</code> or <code>rgb(rrr, ggg, bbb)</code>
+          <br/>
+          <input
+            type="checkbox"
+            checked={matchesOnly}
+            id="matches_only"
+            onChange={e => setMatchesOnly(e.target.checked)}
+          />
+          <label htmlFor="matches_only"> Show matching features only</label>
+          <p>
+            <a href="#" onClick={loadSampleExprData}>Load sample expression data</a>
+          </p>
+        </div>
       </div>
-      {seqPromise && <Viewer seqPromise={seqPromise} noCanvas={noCanvas} />}
+      {seqPromise && (
+        <Viewer {...{ seqPromise, geneKey, colourData, noCanvas, matchesOnly }} />
+      )}
     </>
   );
 }
@@ -131,6 +225,9 @@ function App() {
 interface Props {
   seqPromise: Promise<Seq>;
   noCanvas: boolean;
+  colourData: string;
+  geneKey: string;
+  matchesOnly: boolean;
 }
 
 const Viewer = (props: Props) => {
@@ -145,8 +242,27 @@ const Viewer = (props: Props) => {
   );
 };
 
-const DiagramDiv = ({ seqPromise, noCanvas }: Props) => {
+const DiagramDiv = ({ seqPromise, noCanvas, colourData, geneKey, matchesOnly }: Props) => {
   const seq = readCachedPromise(seqPromise);
+  const colourMap = new Map<number, string>();
+  if (colourData.length > 0) {
+    const vals = readMethodCall(seq, seq.get_feature_qualifier, geneKey);
+    const valIdMap = new Map<string, number>();
+    vals.forEach((v, idx) => valIdMap.set(v, idx));
+    for (const l of colourData.split("\n")) {
+      const split = l.match(/([^\s]+)\s+(.+)/);
+      if (split) {
+        const key = split[1].trim();
+        const idx = valIdMap.get(key);
+        if (idx !== undefined) {
+          colourMap.set(idx, split[2].trim());
+        }
+      }
+    }
+  }
+
+  const filter = matchesOnly && colourMap.size ? [...colourMap.keys()] : undefined;
+
   return (
     <>
       <Diagram
@@ -154,6 +270,9 @@ const DiagramDiv = ({ seqPromise, noCanvas }: Props) => {
         hidden={false}
         showDetails={false}
         noCanvas={noCanvas}
+        overrideFeatureColour={colourMap.size ? colourMap : undefined}
+        defaultColour="grey"
+        filterFeatures={filter}
       />
     </>
   );

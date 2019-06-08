@@ -14,7 +14,7 @@ import {
   textPadding,
   DiagramProps,
   DiagramHandle,
-  highlightedFeatureColour
+  highlightedFeatureColour,
 } from ".";
 
 export default React.forwardRef(
@@ -24,7 +24,10 @@ export default React.forwardRef(
       name,
       len,
       hidden,
-      highlightedFeature /*, setVisibleInterval */
+      highlightedFeature /*, setVisibleInterval */,
+      overrideFeatureColour,
+      defaultColour,
+      noCanvas
     }: DiagramProps,
     ref: React.Ref<DiagramHandle>
   ) => {
@@ -82,33 +85,50 @@ export default React.forwardRef(
     const visible = data.filter(
       d => intersectsInterval(d.start, d.end, left, right) // offscreen?
     );
-    const longEnough =
+    let longEnough =
       visible.length < maxSvgElements
         ? d => true
         : d => d.end - d.start > minLenSvg;
+    if (noCanvas) longEnough = () => true;
     const svgArrowData: IArrow[] = visible.filter(longEnough);
     const canvasArrowData: IArrow[] = visible.filter(d => !longEnough(d));
+
+    const getArrowColour = a => {
+      if (overrideFeatureColour) {
+        const override = overrideFeatureColour.get(a.featureId);
+        return override || defaultColour || colourScale(a.colour);
+      } else {
+        return colourScale(a.colour);
+      }
+    };
+
     React.useEffect(() => {
       const context = canvasRef.current.getContext("2d");
       context.setTransform(1, 0, 0, 1, 0, 0);
       context.translate(0, middle);
       context.clearRect(0, 0, width, height - middle);
-      canvasArrowData.sort((a, b) => b.colour - a.colour);
-      let lastColour = 0;
-      for (const a of canvasArrowData) {
-        if (a.colour !== lastColour) {
-          lastColour = a.colour;
-          context.fillStyle = colourScale(lastColour);
-        }
-        if (a.featureId === highlightedFeature) {
-          context.fillStyle = highlightedFeatureColour;
-        }
+
+      const canvasDrawArrow = a => {
         context.beginPath();
         drawArrow(a, lineLength, scale, [0, width], context);
         context.closePath();
         context.fill();
-        if (a.featureId === highlightedFeature) {
-          context.fillStyle = colourScale(lastColour); // restore
+      };
+
+      if (overrideFeatureColour) {
+        for (const a of canvasArrowData) {
+          context.fillStyle = getArrowColour(a);
+          canvasDrawArrow(a);
+        }
+      } else {
+        canvasArrowData.sort((a, b) => b.colour - a.colour);
+        let lastColour = 0;
+        for (const a of canvasArrowData) {
+          if (a.colour !== lastColour) {
+            lastColour = a.colour;
+            context.fillStyle = colourScale(lastColour);
+          }
+          canvasDrawArrow(a);
         }
       }
     });
@@ -144,9 +164,7 @@ export default React.forwardRef(
               <g key={a.arrow.arrowId}>
                 <path
                   fill={
-                    a.arrow.featureId == highlightedFeature
-                      ? highlightedFeatureColour
-                      : colourScale(a.arrow.colour)
+                    getArrowColour(a.arrow)
                   }
                   d={a.arrowPath.toString()}
                 />
