@@ -1,6 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { readFileBinary, downloadData, fetchBinary, fetchText } from "../app/utils/io";
+import {
+  readFileBinary,
+  downloadData,
+  fetchBinary,
+  fetchText
+} from "../app/utils/io";
 import { setErrorHandler, setLogHandler } from "../app/worker_comms";
 import { parse_gb, Seq, parse_bin } from "../app/worker_comms/worker_shims";
 import { ForkMe } from "./common";
@@ -67,13 +72,13 @@ function App() {
     freeSeq();
   };
 
-  const loadSampleExprData = async (e) => {
+  const loadSampleExprData = async e => {
     e.preventDefault();
     onLoadExample("na1000");
     const text = await fetchText("schramm_data.txt");
     setColourData(text);
     setGeneKey("locus_tag");
-  }
+  };
 
   const downloadSvg = () => {
     // this is a hack and might not work in future React versions ;)
@@ -127,7 +132,7 @@ function App() {
         />
         <p>
           <button
-            className="btn btn-default btn-block btn-default"
+            className="btn btn-default btn-block btn-primary"
             onClick={() => fileRef.current.click()}
           >
             Load template from file
@@ -163,7 +168,13 @@ function App() {
         </div>
         <br />
         <p>
-          <button className="btn btn-default btn-block" onClick={downloadSvg}>
+          <button
+            className={
+              "btn btn-default btn-block" + (seqPromise ? " btn-primary" : "")
+            }
+            disabled={!seqPromise}
+            onClick={downloadSvg}
+          >
             Download SVG
           </button>
         </p>
@@ -199,9 +210,9 @@ function App() {
           <code>key colour</code>
           <br />
           Colour format:
-          <br/>
+          <br />
           <code>#rrggbb</code> or <code>rgb(rrr, ggg, bbb)</code>
-          <br/>
+          <br />
           <input
             type="checkbox"
             checked={matchesOnly}
@@ -210,12 +221,16 @@ function App() {
           />
           <label htmlFor="matches_only"> Show matching features only</label>
           <p>
-            <a href="#" onClick={loadSampleExprData}>Load sample expression data</a>
+            <a href="#" onClick={loadSampleExprData}>
+              Load sample expression data
+            </a>
           </p>
         </div>
       </div>
       {seqPromise && (
-        <Viewer {...{ seqPromise, geneKey, colourData, noCanvas, matchesOnly }} />
+        <Viewer
+          {...{ seqPromise, geneKey, colourData, noCanvas, matchesOnly }}
+        />
       )}
     </>
   );
@@ -241,7 +256,13 @@ const Viewer = (props: Props) => {
   );
 };
 
-const DiagramDiv = ({ seqPromise, noCanvas, colourData, geneKey, matchesOnly }: Props) => {
+const DiagramDiv = ({
+  seqPromise,
+  noCanvas,
+  colourData,
+  geneKey,
+  matchesOnly
+}: Props) => {
   const seq = readCachedPromise(seqPromise);
   const colourMap = new Map<number, string>();
   if (colourData.length > 0) {
@@ -260,7 +281,8 @@ const DiagramDiv = ({ seqPromise, noCanvas, colourData, geneKey, matchesOnly }: 
     }
   }
 
-  const filter = matchesOnly && colourMap.size ? [...colourMap.keys()] : undefined;
+  const filter =
+    matchesOnly && colourMap.size ? [...colourMap.keys()] : undefined;
 
   return (
     <>
