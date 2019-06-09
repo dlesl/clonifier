@@ -11,7 +11,6 @@ import "./genome_viewer.css";
 import { readCachedPromise, readMethodCall } from "../app/utils/suspense";
 import { ErrorBoundary } from "../app/components/error_boundary";
 import { standardTemplates } from "../templates";
-import { number } from "prop-types";
 
 setErrorHandler(alert);
 setLogHandler(() => {}); // gets logged to console anyway

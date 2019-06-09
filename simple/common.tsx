@@ -41,7 +41,7 @@ export const useScrollToRef = (
 
 export const ForkMe = () => {
   return (
-    <a className="fork_me" href="https://github.com/dlesl/clonifier/">
+    <a className="fork_me" href="https://github.com/dlesl/clonifier/tree/master/simple">
       <img
         width="149"
         height="149"
