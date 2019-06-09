@@ -135,7 +135,7 @@ function App() {
             className="btn btn-default btn-block btn-primary"
             onClick={() => fileRef.current.click()}
           >
-            Load template from file
+            Load sequence from file
           </button>
           <p>Supported formats: Genbank (.gb, .ape)</p>
         </p>
@@ -147,7 +147,7 @@ function App() {
             }
           }}
         >
-          <option value="default">Load an example template...</option>
+          <option value="default">Load an example sequence...</option>
           {standardTemplates.map(({ name, basename }) => (
             <option key={basename} value={basename}>
               {name}
