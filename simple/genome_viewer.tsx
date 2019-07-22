@@ -72,6 +72,8 @@ function App() {
     freeSeq();
   };
 
+  React.useEffect(() => onLoadExample(standardTemplates[0].basename), []);
+
   const loadSampleExprData = async e => {
     e.preventDefault();
     onLoadExample("na1000");
