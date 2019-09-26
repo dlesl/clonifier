@@ -164,7 +164,7 @@ fn run_async(
                     rev.extend(new.rev.into_iter());
                     progress += len;
                     (*status.borrow_mut()).percent = progress as f32 / primers.len() as f32 * 100.0;
-                    await!(wait(0));
+                    wait(0).await;
                 }
                 Rc::new(Matches { fwd, rev })
             }

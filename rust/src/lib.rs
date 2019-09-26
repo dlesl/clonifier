@@ -1,4 +1,3 @@
-#![feature(async_await, await_macro)]
 #[macro_use]
 extern crate gb_io;
 #[macro_use]

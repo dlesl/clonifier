@@ -8,7 +8,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-cfg-if = "0.1.9"
+cfg-if = "0.1.10"
 gb-io={git = "https://github.com/dlesl/gb-io", features = ["serde"]}
 pcr={git="https://github.com/dlesl/pcr"}
 assembly={git="https://github.com/dlesl/assembly"}
@@ -16,11 +16,11 @@ wasm-bindgen-futures="*"
 js-sys = "*"
 serde = "*"
 serde_derive = "*"
-bio = "0.25.0"
-bincode = "1.1.4"
+bio = "0.28.2"
+bincode = "1.2.0"
 itertools = "0.8.0"
-svg = "0.5.12"
-futures-preview = {version = "0.3.0-alpha.13", features = ["compat"]}
+svg = "0.6.0"
+futures-preview = {version = "0.3.0-alpha.18"}
 wasm-typescript-definition = "0.1.4"
 log = "*"
 
