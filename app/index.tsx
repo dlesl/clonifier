@@ -457,4 +457,4 @@ window["_appLoadSuccess"] = true;
 // remove loading screen
 document.getElementById("loading").remove();
 // @ts-ignore
-ReactDOM.unstable_createRoot(document.getElementById("app")).render(<App />);
+ReactDOM.createRoot(document.getElementById("app")).render(<App />);
